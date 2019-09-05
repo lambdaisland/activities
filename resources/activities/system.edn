@@ -1,1 +1,4 @@
-{:http-kit {:port 5387}}
+{:router       {}
+ :ring-handler {:router #ig/ref :router}
+ :http-kit     {:port 5387
+                :handler #ig/ref :ring-handler}}
