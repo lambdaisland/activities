@@ -1,0 +1,73 @@
+{:reitit.core/match
+ {:template "/activity",
+  :data
+  {:name :activities.system/create-activity,
+   :post {:handler #'activities.handlers/create-activity}},
+  :result
+  {:get nil,
+   :head nil,
+   :post
+   {:data
+    {:name :activities.system/create-activity,
+     :handler #'activities.handlers/create-activity},
+    :handler #'activities.handlers/create-activity,
+    :path "/activity",
+    :method :post,
+    :middleware []},
+   :put nil,
+   :delete nil,
+   :connect nil,
+   :options
+   {:data
+    {:name :activities.system/create-activity,
+     :no-doc true,
+     :handler #function[reitit.ring/fn--4174/fn--4183]},
+    :handler #function[reitit.ring/fn--4174/fn--4183],
+    :path "/activity",
+    :method :options,
+    :middleware []},
+   :trace nil,
+   :patch nil},
+  :path-params {},
+  :path "/activity"},
+ :reitit.core/router
+ #object[reitit.core$mixed_router$reify__3660 0x1bc2c29d "reitit.core$mixed_router$reify__3660@1bc2c29d"],
+ :cookies {},
+ :remote-addr "85.212.104.152",
+ :params {:title "hello"},
+ :flash nil,
+ :headers
+ {"host" "5a179d20.ngrok.io",
+  "user-agent"
+  "Mozilla/5.0 (X11; Linux x86_64; rv:67.0) Gecko/20100101 Firefox/67.0",
+  "content-type" "application/x-www-form-urlencoded",
+  "content-length" "11",
+  "referer" "https://5a179d20.ngrok.io/activities/new",
+  "upgrade-insecure-requests" "1",
+  "accept"
+  "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "accept-language" "en-US,en;q=0.5",
+  "x-forwarded-for" "85.212.104.152",
+  "accept-encoding" "gzip, deflate, br",
+  "x-forwarded-proto" "https",
+  "cache-control" "max-age=0"},
+ :async-channel
+ #object[org.httpkit.server.AsyncChannel 0x1b568134 "/127.0.0.1:5387<->/127.0.0.1:51182"],
+ :server-port 80,
+ :content-length 11,
+ :form-params {"title" "hello"},
+ :websocket? false,
+ :session/key nil,
+ :query-params {},
+ :content-type "application/x-www-form-urlencoded",
+ :character-encoding "utf8",
+ :uri "/activity",
+ :server-name "5a179d20.ngrok.io",
+ :query-string nil,
+ :path-params {},
+ :body
+ #object[org.httpkit.BytesInputStream 0x1319c7b0 "BytesInputStream[len=11]"],
+ :multipart-params {},
+ :scheme :http,
+ :request-method :post,
+ :session {}}

@@ -5,6 +5,3 @@ GET http://localhost:5387/activities/new
 
 #
 GET https://e0e93acd.ngrok.io/activities/new
-
-#
-POST
