@@ -3,23 +3,10 @@
             [clojure.pprint])
   (:import [java.util UUID]))
 
-;; requsest -> response
-
-;; {:path "/foo" :request-method :get :path-params {:id 123}}
-;; ->
-;; {:status 200, :headers {}, :body "..."}
-
-(def activities (atom {}))
-
-#_
-{123 {:id 123
-      :title "Go bouldering"}}
+(defonce activities (atom {}))
 
 (defn new-activity-id []
   (str (UUID/randomUUID)))
-
-;; (new-activity-id)
-;; => "a0752e33-2e8d-42a3-b258-a06ca20eeda7"
 
 (defn debug-request [req]
   {:status 200
@@ -27,7 +14,7 @@
    :body (with-out-str (clojure.pprint/pprint req))})
 
 ;; GET /activity/new
-(defn new-activity-form [req]
+(defn new-activity-form [_]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str (hiccup/html [:div
@@ -39,20 +26,22 @@
                               [:input {:type "submit"}]]]]))})
 
 ;; POST /activity
-(defn create-activity [req]
-  (let [params (:form-params req)]
-    #_{"title" "Go bouldering"}
-    ;; - store activity in atom
-    ;; - Assign it an id
-    ;; - Redirect to /activity/<id>
-
+(defn create-activity [{{:strs [title]} :form-params}]
+  (let [id (new-activity-id)]
+    ;; store activity in atom and assign it an id
+    (swap! activities #(assoc % id {:id    id
+                                    :title title}))
+    ;; redirect to /activity/<id>
     {:status 301
-     :headers {"Location" "..."}
-     :body ""})
-  #_(debug-request req)
-  )
+     :headers {"Location" (str "/activity/" id)}}))
+
 
 ;; GET /activity/:id
-(defn get-activity [req]
+(defn get-activity [{{id :id} :path-params}]
   ;; render the title with hiccup
-  )
+  (let [{{:keys [title]} id} @activities]
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (str (hiccup/html [:div
+                              [:h1 title]]))}))
+
