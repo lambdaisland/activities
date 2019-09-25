@@ -45,3 +45,11 @@
      :body (str (hiccup/html [:div
                               [:h1 title]]))}))
 
+;; GET /activities
+(defn list-activities [_]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str (hiccup/html
+               [:div
+                (map (fn [[_ {title :title}]]
+                       [:article [:h1 title]]) @activities)]))})

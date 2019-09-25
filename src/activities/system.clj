@@ -21,6 +21,8 @@
 
 (def routes
   [["/" ::index]
+   ["/activities" {:name ::list-activities
+                   :get  #'handlers/list-activities}]
    ["/activities"
     ["/new" {:name ::new-activity
              :get  #'handlers/new-activity-form}]]
@@ -64,7 +66,4 @@
   (:path (reitit.core/match-by-name router ::activity {:id 456}))
   ;; => "/activity/456"
 
-  (reitit.core/match-by-path router "/activity/123")
-
-
-  )
+  (reitit.core/match-by-path router "/activity/123"))
