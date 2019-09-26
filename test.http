@@ -1,7 +1,0 @@
-GET http://localhost:5387/activity/123
-
-#
-GET http://localhost:5387/activities/new
-
-#
-GET https://e0e93acd.ngrok.io/activities/new

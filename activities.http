@@ -1,0 +1,25 @@
+# -*- mode: restclient -*-
+# Emacs restclient examples for the Activities application
+
+# Variables
+:host  = http://localhost:5387
+:id    = <valid-id>
+:title = Hello from Emacs
+
+:form-header = <<
+Content-Type: application/x-www-form-urlencoded
+#
+
+# Get an HTML form to submit a new activity.
+GET :host/activities/new
+
+# Submit a new activity form.
+POST :host/activity
+:form-header
+
+title=:title
+# Given a valid ID, displays the page of a specific activity.
+GET :host/activity/:id
+
+# List all activities found in the database.
+GET :host/activities
