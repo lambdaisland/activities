@@ -32,7 +32,7 @@
     (swap! activities #(assoc % id {:id    id
                                     :title title}))
     ;; redirect to /activity/<id>
-    {:status 301
+    {:status 201
      :headers {"Location" (str "/activity/" id)}}))
 
 
