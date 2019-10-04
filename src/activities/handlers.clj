@@ -45,11 +45,29 @@
      :body (str (hiccup/html [:div
                               [:h1 title]]))}))
 
+(defn path [route & [params]]
+  (-> (:router integrant.repl.state/system)
+      (reitit.core/match-by-name route params)
+      :path))
+
 ;; GET /activities
 (defn list-activities [_]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str (hiccup/html
                [:div
-                (map (fn [[_ {title :title}]]
-                       [:article [:h1 title]]) @activities)]))})
+                (map (fn [[id {:keys [title]}]]
+                       [:article [:h1 [:a {:href (path :activities.system/activity {:id id})} title]]]) @activities)]))})
+
+;; GET /activities/:id/edit
+(defn edit-activity [{{id :id} :path-params}]
+  (let [activity (get @activities id)]
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (str (hiccup/html [:div
+                              [:form {:method "PUT" :action "/activity" #_path}
+                               [:div
+                                [:label]
+                                [:input {:name "title" :value (:title activity)}]]
+                               [:div
+                                [:input {:type "submit"}]]]]))}))

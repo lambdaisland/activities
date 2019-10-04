@@ -23,29 +23,28 @@
   [["/" ::index]
    ["/activities" {:name ::list-activities
                    :get  #'handlers/list-activities}]
-   ["/activities"
-    ["/new" {:name ::new-activity
-             :get  #'handlers/new-activity-form}]]
-   ["/activity"
-    {:name ::create-activity
-     :post #'handlers/create-activity}]
-   ["/activity"
-    ["/:id" {:name ::activity
-             :get  #'handlers/get-activity}]]])
+   ["/activities/new"{:name ::new-activity
+                          :get  #'handlers/new-activity-form}]
+   ["/activity" {:name ::create-activity
+                 :post #'handlers/create-activity}]
+   ["/activity/:id" {:name ::activity
+                     :get  #'handlers/get-activity}]
+   ["/activity/:id/edit" {:name ::edit-activity
+                          :get #'handlers/edit-activity}]])
 
-(defmethod integrant/init-key :router [_ config #_{}]
+(defmethod integrant/init-key :router [_ config] ;; {}
   (reitit.ring/router routes))
 
 (def ring-config
   (-> ring.middleware.defaults/site-defaults
       (assoc-in [:security :anti-forgery] false)))
 
-(defmethod integrant/init-key :ring-handler [_ config #_{:router reitit-router}]
+(defmethod integrant/init-key :ring-handler [_ config] ;; {:router reitit-router}
   (-> (:router config)
       reitit.ring/ring-handler
       (ring.middleware.defaults/wrap-defaults ring-config)))
 
-(defmethod integrant/init-key :http-kit [_ config #_{:port 5387 :handler ...ring-handler...}]
+(defmethod integrant/init-key :http-kit [_ config] ;; {:port 5387 :handler ...ring-handler...}
   (assoc config
          :stop-server
          (httpkit/run-server (:handler config) config)))
