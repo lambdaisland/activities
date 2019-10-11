@@ -21,16 +21,18 @@
 
 (def routes
   [["/" ::index]
-   ["/activities" {:name ::list-activities
-                   :get  #'handlers/list-activities}]
-   ["/activities/new"{:name ::new-activity
-                          :get  #'handlers/new-activity-form}]
-   ["/activity" {:name ::create-activity
-                 :post #'handlers/create-activity}]
-   ["/activity/:id" {:name ::activity
-                     :get  #'handlers/get-activity}]
-   ["/activity/:id/edit" {:name ::edit-activity
-                          :get #'handlers/edit-activity}]])
+   ["/activities" {}
+    ["" {:get    #'handlers/list-activities
+         :post   #'handlers/create-activity}]
+    ["/new" {:name ::new-activity
+             :get  #'handlers/new-activity-form}]
+    ["/activity" {}
+     ["/:id" {}
+      ["" {:get #'handlers/get-activity
+           :put #'handlers/edit-activity
+           :delete #'handlers/delete-activity}]
+      ["/edit" {:name ::edit-activity-form
+                :get #'handlers/edit-activity-form}]]]]])
 
 (defmethod integrant/init-key :router [_ config] ;; {}
   (reitit.ring/router routes))

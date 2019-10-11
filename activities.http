@@ -3,23 +3,35 @@
 
 # Variables
 :host  = http://localhost:5387
-:id    = <valid-id>
+:id    = ceed97d6-f5c0-461d-81aa-d0ccfbd476cc
 :title = Hello from Emacs
 
 :form-header = <<
 Content-Type: application/x-www-form-urlencoded
 #
 
-# Get an HTML form to submit a new activity.
-GET :host/activities/new
+# List all activities found in the database.
+GET :host/activities
 
 # Submit a new activity form.
-POST :host/activity
+POST :host/activities
 :form-header
 
 title=:title
-# Given a valid ID, displays the page of a specific activity.
-GET :host/activity/:id
 
-# List all activities found in the database.
-GET :host/activities
+# Modify an existing activity
+PUT :host/activities/activity/:id
+:form-header
+
+title=EDITED
+# Delete an existing activity
+DELETE :host/activities/activity/:id
+
+# Get an HTML form to submit a new activity.
+GET :host/activities/new
+
+# Given a valid ID, displays the page of a specific activity.
+GET :host/activities/activity/:id
+
+# Get an editable form for an existing activity
+GET :host/activities/activity/:id/edit
