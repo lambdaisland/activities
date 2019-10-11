@@ -3,7 +3,7 @@
 
 # Variables
 :host  = http://localhost:5387
-:id    = ceed97d6-f5c0-461d-81aa-d0ccfbd476cc
+:id    = 6bf8d516-1beb-448c-9057-a65dd2351e28
 :title = Hello from Emacs
 
 :form-header = <<
@@ -20,7 +20,7 @@ POST :host/activities
 title=:title
 
 # Modify an existing activity
-PUT :host/activities/activity/:id
+POST :host/activities/activity/:id
 :form-header
 
 title=EDITED
