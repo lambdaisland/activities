@@ -1,6 +1,7 @@
 (ns activities.handlers
   (:require [hiccup2.core :as hiccup]
-            [clojure.pprint])
+            [clojure.pprint]
+            [reitit.core])
   (:import [java.util UUID]))
 
 (defonce activities (atom {}))
@@ -18,7 +19,7 @@
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str (hiccup/html [:div
-                            [:form {:method "POST" :action "/activity"}
+                            [:form {:method "POST" :action "/activities"}
                              [:div
                               [:label]
                               [:input {:name "title"}]]
@@ -32,14 +33,15 @@
     (swap! activities #(assoc % id {:id    id
                                     :title title}))
     ;; redirect to /activity/<id>
-    {:status 201
-     :headers {"Location" (str "/activity/" id)}}))
+    {:status 303
+     :headers {"Location" (str "/activities/activity/" id)}}))
 
 
 ;; GET /activity/:id
-(defn get-activity [{{id :id} :path-params}]
+(defn get-activity [req]
   ;; render the title with hiccup
-  (let [{{:keys [title]} id} @activities]
+  (let [id (get-in req [:path-params :id])
+        title (get-in @activities [id :title])]
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body (str (hiccup/html [:div
@@ -59,15 +61,35 @@
                 (map (fn [[id {:keys [title]}]]
                        [:article [:h1 [:a {:href (path :activities.system/activity {:id id})} title]]]) @activities)]))})
 
+(defn edit-activity [req]
+  (let [id        (get-in req [:path-params :id])
+        new-title (get-in req [:form-params :title])]
+    (swap! activities #(update % id {:id    id
+                                     :title new-title}))
+    {:status 303
+     :header {"Location" (str "/activities/activity" id)}}))
+
 ;; GET /activities/:id/edit
-(defn edit-activity [{{id :id} :path-params}]
+(defn edit-activity-form [{{id :id} :path-params}]
   (let [activity (get @activities id)]
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body (str (hiccup/html [:div
-                              [:form {:method "PUT" :action "/activity" #_path}
+                              [:form {:method "PUT" :action "/activities"}
                                [:div
                                 [:label]
                                 [:input {:name "title" :value (:title activity)}]]
                                [:div
                                 [:input {:type "submit"}]]]]))}))
+
+(defn delete-activity [req]
+  (let [id (get-in req [:path-params :id])]
+    (swap! activities #(dissoc % id))
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (str (hiccup/html
+                 [:div
+                  [:p "Activity successfully deleted."]]))}))
+
+(comment
+  (reset! activities {}))
