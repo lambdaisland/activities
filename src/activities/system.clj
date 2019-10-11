@@ -28,11 +28,12 @@
              :get  #'handlers/new-activity-form}]
     ["/activity" {}
      ["/:id" {}
-      ["" {:get #'handlers/get-activity
-           :put #'handlers/edit-activity
+      ["" {:name ::activity
+           :get #'handlers/get-activity
+           :post #'handlers/update-activity
            :delete #'handlers/delete-activity}]
-      ["/edit" {:name ::edit-activity-form
-                :get #'handlers/edit-activity-form}]]]]])
+      ["/edit" {:name ::edit-activity
+                :get #'handlers/edit-activity}]]]]])
 
 (defmethod integrant/init-key :router [_ config] ;; {}
   (reitit.ring/router routes))
@@ -41,9 +42,27 @@
   (-> ring.middleware.defaults/site-defaults
       (assoc-in [:security :anti-forgery] false)))
 
+(defn- hidden-method
+  [request]
+  (keyword
+   (or (get-in request [:form-params "_method"])         ;; look for "_method" field in :form-params
+       (get-in request [:multipart-params "_method"])))) ;; or in :multipart-params
+
+(def wrap-hidden-method
+  {:name ::wrap-hidden-method
+   :wrap (fn [handler]
+           (fn [request]
+             (clojure.pprint/pprint [:request request])
+             (if-let [fm (and (= :post (:request-method request)) ;; if this is a :post request
+                              (hidden-method request))] ;; and there is a "_method" field 
+               (do (prn (str "it's a " fm))
+                   (handler (assoc request :request-method fm)))
+               (do (prn "it's not!")
+                   (handler request)))))})
+
 (defmethod integrant/init-key :ring-handler [_ config] ;; {:router reitit-router}
   (-> (:router config)
-      reitit.ring/ring-handler
+      (reitit.ring/ring-handler (reitit.ring/create-default-handler) {:middleware [wrap-hidden-method]})
       (ring.middleware.defaults/wrap-defaults ring-config)))
 
 (defmethod integrant/init-key :http-kit [_ config] ;; {:port 5387 :handler ...ring-handler...}

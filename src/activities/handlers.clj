@@ -4,15 +4,25 @@
             [reitit.core])
   (:import [java.util UUID]))
 
-(defonce activities (atom {}))
-
 (defn new-activity-id []
   (str (UUID/randomUUID)))
+
+(defonce activities (atom {"d2009ae9-4b7b-4a25-8332-40c09cc197e3"
+                           {:id "d2009ae9-4b7b-4a25-8332-40c09cc197e3"
+                            :title "Test 01"}
+                           "6bf8d516-1beb-448c-9057-a65dd2351e28"
+                           {:id "6bf8d516-1beb-448c-9057-a65dd2351e28"
+                            :title "02 working"}}))
 
 (defn debug-request [req]
   {:status 200
    :headers {"Content-Type" "text/plain"}
    :body (with-out-str (clojure.pprint/pprint req))})
+
+(defn path [route & [params]]
+  (-> (:router integrant.repl.state/system)
+      (reitit.core/match-by-name route params)
+      :path))
 
 ;; GET /activity/new
 (defn new-activity-form [_]
@@ -45,12 +55,12 @@
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body (str (hiccup/html [:div
-                              [:h1 title]]))}))
-
-(defn path [route & [params]]
-  (-> (:router integrant.repl.state/system)
-      (reitit.core/match-by-name route params)
-      :path))
+                              [:h1 title]
+                              [:a {:href (path :activities.system/edit-activity {:id id})}
+                               [:button "EDIT"]]
+                              [:form {:method "POST" :action (path :activities.system/activity {:id id})}
+                               [:input {:type "hidden" :name "_method" :value "delete"}]
+                               [:input {:type "submit" :value "Delete"}]]]))}))
 
 ;; GET /activities
 (defn list-activities [_]
@@ -61,21 +71,20 @@
                 (map (fn [[id {:keys [title]}]]
                        [:article [:h1 [:a {:href (path :activities.system/activity {:id id})} title]]]) @activities)]))})
 
-(defn edit-activity [req]
+(defn update-activity [req]
   (let [id        (get-in req [:path-params :id])
-        new-title (get-in req [:form-params :title])]
-    (swap! activities #(update % id {:id    id
-                                     :title new-title}))
+        new-title (get-in req [:params :title])]
+    (swap! activities #(assoc-in % [id :title] new-title))
     {:status 303
-     :header {"Location" (str "/activities/activity" id)}}))
+     :headers {"Location" (str "/activities/activity/" id)}}))
 
 ;; GET /activities/:id/edit
-(defn edit-activity-form [{{id :id} :path-params}]
+(defn edit-activity [{{id :id} :path-params}]
   (let [activity (get @activities id)]
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body (str (hiccup/html [:div
-                              [:form {:method "PUT" :action "/activities"}
+                              [:form {:method "POST" :action (path :activities.system/activity {:id id})}
                                [:div
                                 [:label]
                                 [:input {:name "title" :value (:title activity)}]]
