@@ -1,0 +1,69 @@
+* Todos
+   - [X] Root handler / home~index page
+   - [X] Layout
+   - [ ] Login / auth
+   - [ ] Persistence with Crux
+   - [ ] Styling
+   - [ ] More activity fields: description, date+time
+   - [ ] The ability to sign up
+
+
+* Things you can try yourself
+** Styling
+   Ring has a middleware for serving up static files (e.g. css), and I think
+   it's even included in the default middlewares.
+
+   - Create a resources/public/styles.css file
+   - Figure out at which URL you can access it
+   - Try to reference it from :html :head
+
+** Refactor the handlers
+   Create a ~response~ function that
+
+   - Sets the status code to 200
+   - Sets the content type header
+   - calls layout, hiccup, str
+   - Bonus points: allow overriding status code, adding extra headers
+   - Bonus bonus: set the title in the layout with a {:layout} option
+   - Bonus bonus bonus: allow the options map to be omitted
+
+   #+begin_src clojure
+     (response {:status ... :headers ... :title ...}
+               [:some :hiccup])
+
+     (response [:some :hiccup])
+   #+end_src
+
+** Add crux ;)
+
+   After going through the tutorial, see if you can add it in.
+
+   Just hack it in however you like, or if you want to be fancy add it to
+   system.edn and add a integrant/init-key method
+
+** Easier one: add description field
+
+   Give activities a description text field, render it nicely
+
+   Bonus: allow markdown
+
+
+* Databases
+- Datomic
+  Pros: very idiomatic, good to learn about, easy to use
+  Cons: high memory footprint, not free software, commercial version expensive
+
+- Crux
+  Pros: great data model, very Clojure-y, bitemporal
+  Cons: not very mature yet
+
+- PostgreSQL / RDBMS / JDBC
+  Pros: very easy to set up, cheap to run, well understood
+  Cons: relational model, more work converting to/from Clojure data
+
+- Firebase
+  ... would have to be investigated ...
+
+- Spicerack -> MapDB
+  Pros: probably easiest upgrade path from atom
+  Cons: not really production ready
