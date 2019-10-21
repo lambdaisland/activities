@@ -25,6 +25,10 @@
       (reitit.core/match-by-name route params)
       :path))
 
+(defn redirect-to-activities [req]
+  {:status 301
+   :headers {"Location" (path req :activities.system/activities)}})
+
 (defn layout [body]
   [:html
    [:head
