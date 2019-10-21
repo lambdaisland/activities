@@ -19,8 +19,9 @@
    :headers {"Content-Type" "text/plain"}
    :body (with-out-str (clojure.pprint/pprint req))})
 
-(defn path [route & [params]]
-  (-> (:router integrant.repl.state/system)
+(defn path [req route & [params]]
+  (-> req
+      :reitit.core/router
       (reitit.core/match-by-name route params)
       :path))
 
@@ -56,20 +57,20 @@
      :headers {"Content-Type" "text/html"}
      :body (str (hiccup/html [:div
                               [:h1 title]
-                              [:a {:href (path :activities.system/edit-activity {:id id})}
+                              [:a {:href (path req :activities.system/edit-activity {:id id})}
                                [:button "EDIT"]]
-                              [:form {:method "POST" :action (path :activities.system/activity {:id id})}
+                              [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
                                [:input {:type "hidden" :name "_method" :value "delete"}]
                                [:input {:type "submit" :value "Delete"}]]]))}))
 
 ;; GET /activities
-(defn list-activities [_]
+(defn list-activities [req]
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str (hiccup/html
                [:div
                 (map (fn [[id {:keys [title]}]]
-                       [:article [:h1 [:a {:href (path :activities.system/activity {:id id})} title]]]) @activities)]))})
+                       [:article [:h1 [:a {:href (path req :activities.system/activity {:id id})} title]]]) @activities)]))})
 
 (defn update-activity [req]
   (let [id        (get-in req [:path-params :id])
@@ -79,12 +80,12 @@
      :headers {"Location" (str "/activities/activity/" id)}}))
 
 ;; GET /activities/:id/edit
-(defn edit-activity [{{id :id} :path-params}]
+(defn edit-activity [{{id :id} :path-params :as req}]
   (let [activity (get @activities id)]
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body (str (hiccup/html [:div
-                              [:form {:method "POST" :action (path :activities.system/activity {:id id})}
+                              [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
                                [:div
                                 [:label]
                                 [:input {:name "title" :value (:title activity)}]]

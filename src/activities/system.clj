@@ -20,7 +20,9 @@
     {:handler this}))
 
 (def routes
-  [["/" ::index]
+  [["/"
+    {:name ::index
+     :get #'handlers/debug-request}]
    ["/activities" {}
     ["" {:get    #'handlers/list-activities
          :post   #'handlers/create-activity}]
@@ -54,7 +56,7 @@
            (fn [request]
              (clojure.pprint/pprint [:request request])
              (if-let [fm (and (= :post (:request-method request)) ;; if this is a :post request
-                              (hidden-method request))] ;; and there is a "_method" field 
+                              (hidden-method request))] ;; and there is a "_method" field
                (do (prn (str "it's a " fm))
                    (handler (assoc request :request-method fm)))
                (do (prn "it's not!")
