@@ -65,6 +65,8 @@
 
 (defmethod integrant/init-key :ring-handler [_ config] ;; {:router reitit-router}
   (-> (:router config)
+      ;; wrap-hidden-method must be applied before requests are matched with handlers
+      ;; https://cljdoc.org/d/metosin/reitit-ring/0.3.9/doc/ring/restful-form-methods
       (reitit.ring/ring-handler (reitit.ring/create-default-handler) {:middleware [wrap-hidden-method]})
       (ring.middleware.defaults/wrap-defaults ring-config)
       (prone/wrap-exceptions)))
