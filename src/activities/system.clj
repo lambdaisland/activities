@@ -5,7 +5,8 @@
             [integrant.core :as integrant]
             [org.httpkit.server :as httpkit]
             [reitit.ring :as reitit]
-            [ring.middleware.defaults]))
+            [ring.middleware.defaults]
+            [prone.middleware :as prone]))
 
 (defmethod aero/reader 'ig/ref
   [_ _ value]
@@ -22,8 +23,8 @@
 (def routes
   [["/"
     {:name ::index
-     :get #'handlers/debug-request}]
-   ["/activities" {}
+     :get #'handlers/redirect-to-activities}]
+   ["/activities" {:name ::activities}
     ["" {:get    #'handlers/list-activities
          :post   #'handlers/create-activity}]
     ["/new" {:name ::new-activity
@@ -65,7 +66,8 @@
 (defmethod integrant/init-key :ring-handler [_ config] ;; {:router reitit-router}
   (-> (:router config)
       (reitit.ring/ring-handler (reitit.ring/create-default-handler) {:middleware [wrap-hidden-method]})
-      (ring.middleware.defaults/wrap-defaults ring-config)))
+      (ring.middleware.defaults/wrap-defaults ring-config)
+      (prone/wrap-exceptions)))
 
 (defmethod integrant/init-key :http-kit [_ config] ;; {:port 5387 :handler ...ring-handler...}
   (assoc config
