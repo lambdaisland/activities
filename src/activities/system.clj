@@ -27,15 +27,15 @@
     ["" {:get    #'handlers/list-activities
          :post   #'handlers/create-activity}]
     ["/new" {:name ::new-activity
-             :get  #'handlers/new-activity-form}]
-    ["/activity" {}
-     ["/:id" {}
-      ["" {:name ::activity
-           :get #'handlers/get-activity
-           :post #'handlers/update-activity
-           :delete #'handlers/delete-activity}]
-      ["/edit" {:name ::edit-activity
-                :get #'handlers/edit-activity}]]]]])
+             :get  #'handlers/new-activity-form}]]
+   ["/activity" {}
+    ["/:id" {}
+     ["" {:name ::activity
+          :get #'handlers/get-activity
+          :post #'handlers/update-activity
+          :delete #'handlers/delete-activity}]
+     ["/edit" {:name ::edit-activity
+               :get #'handlers/edit-activity}]]]])
 
 (defmethod integrant/init-key :router [_ config] ;; {}
   (reitit.ring/router routes))

@@ -25,17 +25,25 @@
       (reitit.core/match-by-name route params)
       :path))
 
+(defn layout [body]
+  [:html
+   [:head
+    [:title "Activities"]]
+   [:body body]])
+
 ;; GET /activity/new
 (defn new-activity-form [_]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (str (hiccup/html [:div
-                            [:form {:method "POST" :action "/activities"}
-                             [:div
-                              [:label]
-                              [:input {:name "title"}]]
-                             [:div
-                              [:input {:type "submit"}]]]]))})
+   :body (str (hiccup/html
+               (layout
+                [:div
+                 [:form {:method "POST" :action "/activities"}
+                  [:div
+                   [:label]
+                   [:input {:name "title"}]]
+                  [:div
+                   [:input {:type "submit"}]]]])))})
 
 ;; POST /activity
 (defn create-activity [{{:strs [title]} :form-params}]
@@ -55,22 +63,27 @@
         title (get-in @activities [id :title])]
     {:status 200
      :headers {"Content-Type" "text/html"}
-     :body (str (hiccup/html [:div
-                              [:h1 title]
-                              [:a {:href (path req :activities.system/edit-activity {:id id})}
-                               [:button "EDIT"]]
-                              [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
-                               [:input {:type "hidden" :name "_method" :value "delete"}]
-                               [:input {:type "submit" :value "Delete"}]]]))}))
+     :body (-> [:div
+                [:h1 title]
+                [:a {:href (path req :activities.system/edit-activity {:id id})}
+                 [:button "EDIT"]]
+                [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
+                 [:input {:type "hidden" :name "_method" :value "delete"}]
+                 [:input {:type "submit" :value "Delete"}]]]
+               layout
+               hiccup/html
+               str)}))
 
 ;; GET /activities
 (defn list-activities [req]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (str (hiccup/html
-               [:div
-                (map (fn [[id {:keys [title]}]]
-                       [:article [:h1 [:a {:href (path req :activities.system/activity {:id id})} title]]]) @activities)]))})
+   :body (-> [:div
+              (map (fn [[id {:keys [title]}]]
+                     [:article [:h1 [:a {:href (path req :activities.system/activity {:id id})} title]]]) @activities)]
+             layout
+             hiccup/html
+             str)})
 
 (defn update-activity [req]
   (let [id        (get-in req [:path-params :id])
@@ -84,22 +97,27 @@
   (let [activity (get @activities id)]
     {:status 200
      :headers {"Content-Type" "text/html"}
-     :body (str (hiccup/html [:div
-                              [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
-                               [:div
-                                [:label]
-                                [:input {:name "title" :value (:title activity)}]]
-                               [:div
-                                [:input {:type "submit"}]]]]))}))
+     :body (-> [:div
+                [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
+                 [:div
+                  [:label]
+                  [:input {:name "title" :value (:title activity)}]]
+                 [:div
+                  [:input {:type "submit"}]]]]
+               layout
+               hiccup/html
+               str)}))
 
 (defn delete-activity [req]
   (let [id (get-in req [:path-params :id])]
     (swap! activities #(dissoc % id))
     {:status 200
      :headers {"Content-Type" "text/html"}
-     :body (str (hiccup/html
-                 [:div
-                  [:p "Activity successfully deleted."]]))}))
+     :body (-> [:div
+                [:p "Activity successfully deleted."]]
+               layout
+               hiccup/html
+               str)}))
 
 (comment
   (reset! activities {}))
