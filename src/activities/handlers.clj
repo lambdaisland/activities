@@ -32,7 +32,8 @@
 (defn layout [body]
   [:html
    [:head
-    [:title "Activities"]]
+    [:title "Activities"]
+    [:link {:rel "stylesheet" :href "/styles.css"}]]
    [:body body]])
 
 ;; GET /activity/new
