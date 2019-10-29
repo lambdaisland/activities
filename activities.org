@@ -2,10 +2,10 @@
    - [X] Root handler / home~index page
    - [X] Layout
    - [ ] Login / auth
-   - [-] Persistence with Crux
+   - [ ] Persistence with Crux
      - [ ] Delete
      - [ ] Update
-   - [ ] Styling
+   - [X] Styling
    - [ ] More activity fields: description, date+time
    - [ ] The ability to sign up
    - [X] Refactor the handlers
@@ -48,7 +48,9 @@
 
    Give activities a description text field, render it nicely
 
-   Bonus: allow markdown
+   Bonus: allow markdown, maybe look at Flexmark
+
+   Other fields: begin and end time, maximum number of participants
 
 
 * Databases
