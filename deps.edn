@@ -7,7 +7,8 @@
         integrant/repl      {:mvn/version "0.3.1"}
         aero                {:mvn/version "1.1.3"}
         hiccup              {:mvn/version "2.0.0-alpha2"}
-        prone               {:mvn/version "2019-07-08"}}
+        prone               {:mvn/version "2019-07-08"}
+        juxt/crux-core      {:mvn/version "19.09-1.5.0-alpha"}}
 
  :paths ["src" "test" "resources"]
 
