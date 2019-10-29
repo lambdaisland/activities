@@ -98,15 +98,24 @@
                 [:input {:type "hidden" :name "_method" :value "delete"}]
                 [:input {:type "submit" :value "Delete"}]]])))
 
+(defn get-activities [db]
+  (map
+   #(crux/entity db (first %))
+   (user/q '{:find [id]
+             :where [[id :activity/title]]})))
+
 ;; GET /activities
 (defn list-activities [req]
-  (response [:div
-             (map (fn [[id {:keys [title]}]]
-                    [:article
-                     [:h1
-                      [:a {:href (path req :activities.system/activity {:id id})} title]]])
-                  @activities)]))
+  (let [activities (get-activities (crux/db (:crux req)))]
+    (response [:div
+               (map (fn [{id :crux.db/id
+                          title :activity/title}]
+                      [:article
+                       [:h1
+                        [:a {:href (path req :activities.system/activity {:id id})} title]]])
+                    activities)])))
 
+;; TODO: change to use crux
 (defn update-activity [req]
   (let [id        (get-in req [:path-params :id])
         new-title (get-in req [:params :title])]
@@ -115,16 +124,19 @@
      :headers {"Location" (str "/activities/activity/" id)}}))
 
 ;; GET /activities/:id/edit
-(defn edit-activity [{{id :id} :path-params :as req}]
-  (let [activity (get @activities id)]
+(defn edit-activity [req]
+  (let [id    (get-in req [:path-params :id])
+        db    (crux/db (:crux req))
+        title (get-title db id)]
     (response [:div
                [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
                 [:div
                  [:label]
-                 [:input {:name "title" :value (:title activity)}]]
+                 [:input {:name "title" :value title}]]
                 [:div
                  [:input {:type "submit"}]]]])))
 
+;; TODO: change to use crux
 (defn delete-activity [req]
   (let [id (get-in req [:path-params :id])]
     (swap! activities #(dissoc % id))
