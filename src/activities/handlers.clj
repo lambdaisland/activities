@@ -2,19 +2,11 @@
   (:require [hiccup2.core :as hiccup]
             [clojure.pprint]
             [reitit.core]
-            [activities.db :refer [activities]]
             [crux.api :as crux])
   (:import [java.util UUID]))
 
-(def activities
-  (crux/start-node
-   {:crux.node/topology :crux.standalone/topology
-    :crux.node/kv-store "crux.kv.memdb/kv"
-    :crux.standalone/event-log-dir "data/eventlog-1"
-    :crux.kv/db-dir "data/db-dir-1"
-    :crux.standalone/event-log-kv-store "crux.kv.memdb/kv"}))
-
-(crux/submit-tx activities
+#_
+(crux/submit-tx (user/crux)
                 [[:crux.tx/put
                   {:crux.db/id #uuid "f190baa5-5c9d-4506-b7bc-901ef175dcf0"
                    :activity/title "Activity 01"}]
@@ -72,28 +64,32 @@
                [:input {:type "submit"}]]]]))
 
 ;; POST /activity
-(defn create-activity [{{:strs [title]} :form-params}]
+(defn create-activity [{{:strs [title]} :form-params
+                        crux :crux}]
   (let [uuid (UUID/randomUUID)]
     ;; store activity in the database and assign it an id
-    (crux/submit-tx activities [[:crux.tx/put
-                                 {:crux.db/id uuid
-                                  :activity/title title}]])
+    (crux/submit-tx crux [[:crux.tx/put
+                           {:crux.db/id uuid
+                            :activity/title title}]])
     ;; redirect to /activity/<id>
     {:status 303
      :headers {"Location" (str "/activities/activity/" uuid)}}))
 
-(def get-title
-  #(crux/q (crux/db activities)
-           '{:find [title]
-             :where [[n :crux.db/id i]
-                     [n :activity/title title]]
-             :args [{i %}]}))
+(defn get-title [db id]
+  (let [uuid (UUID/fromString id)]
+    (ffirst (crux/q db
+                    {:find '[title]
+                     :where [['n :crux.db/id uuid]
+                             '[n :activity/title title]]}))))
+
+;; (get-title (crux/db (user/crux)) "9d70e4e9-4863-4457-8523-79d3f14c8454")
 
 ;; GET /activity/:id
 (defn get-activity [req]
   ;; render the title with hiccup
-  (let [id (get-in req [:path-params :id])
-        title (get-in @activities [id :title])]
+  (let [id    (get-in req [:path-params :id])
+        db    (crux/db (:crux req))
+        title (get-title db id)]
     (response [:div
                [:h1 title]
                [:a {:href (path req :activities.system/edit-activity {:id id})}

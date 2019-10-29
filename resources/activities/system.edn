@@ -1,4 +1,10 @@
 {:router       {}
- :ring-handler {:router #ig/ref :router}
- :http-kit     {:port 5387
-                :handler #ig/ref :ring-handler}}
+ :ring-handler {:router #ig/ref :router
+                :crux   #ig/ref :crux}
+ :http-kit     {:port    5387
+                :handler #ig/ref :ring-handler}
+ :crux         {:crux.node/topology                 :crux.standalone/topology
+                :crux.node/kv-store                 "crux.kv.memdb/kv"
+                :crux.standalone/event-log-dir      "data/eventlog-1"
+                :crux.kv/db-dir                     "data/db-dir-1"
+                :crux.standalone/event-log-kv-store "crux.kv.memdb/kv"}}
