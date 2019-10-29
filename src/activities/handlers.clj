@@ -115,6 +115,9 @@
                         [:a {:href (path req :activities.system/activity {:id id})} title]]])
                     activities)])))
 
+;; Temporary until DELETE/UPDATE are refactored
+(declare activities)
+
 ;; TODO: change to use crux
 (defn update-activity [req]
   (let [id        (get-in req [:path-params :id])
