@@ -1,18 +1,26 @@
 (ns activities.handlers
   (:require [hiccup2.core :as hiccup]
             [clojure.pprint]
-            [reitit.core])
+            [reitit.core]
+            [activities.db :refer [activities]]
+            [crux.api :as crux])
   (:import [java.util UUID]))
 
-(defn new-activity-id []
-  (str (UUID/randomUUID)))
+(def activities
+  (crux/start-node
+   {:crux.node/topology :crux.standalone/topology
+    :crux.node/kv-store "crux.kv.memdb/kv"
+    :crux.standalone/event-log-dir "data/eventlog-1"
+    :crux.kv/db-dir "data/db-dir-1"
+    :crux.standalone/event-log-kv-store "crux.kv.memdb/kv"}))
 
-(defonce activities (atom {"d2009ae9-4b7b-4a25-8332-40c09cc197e3"
-                           {:id "d2009ae9-4b7b-4a25-8332-40c09cc197e3"
-                            :title "Test 01"}
-                           "6bf8d516-1beb-448c-9057-a65dd2351e28"
-                           {:id "6bf8d516-1beb-448c-9057-a65dd2351e28"
-                            :title "02 working"}}))
+(crux/submit-tx activities
+                [[:crux.tx/put
+                  {:crux.db/id #uuid "f190baa5-5c9d-4506-b7bc-901ef175dcf0"
+                   :activity/title "Activity 01"}]
+                 [:crux.tx/put
+                  {:crux.db/id #uuid "9d70e4e9-4863-4457-8523-79d3f14c8454"
+                   :activity/title "Activity 02"}]])
 
 (defn debug-request [req]
   {:status 200
@@ -65,14 +73,21 @@
 
 ;; POST /activity
 (defn create-activity [{{:strs [title]} :form-params}]
-  (let [id (new-activity-id)]
-    ;; store activity in atom and assign it an id
-    (swap! activities #(assoc % id {:id    id
-                                    :title title}))
+  (let [uuid (UUID/randomUUID)]
+    ;; store activity in the database and assign it an id
+    (crux/submit-tx activities [[:crux.tx/put
+                                 {:crux.db/id uuid
+                                  :activity/title title}]])
     ;; redirect to /activity/<id>
     {:status 303
-     :headers {"Location" (str "/activities/activity/" id)}}))
+     :headers {"Location" (str "/activities/activity/" uuid)}}))
 
+(def get-title
+  #(crux/q (crux/db activities)
+           '{:find [title]
+             :where [[n :crux.db/id i]
+                     [n :activity/title title]]
+             :args [{i %}]}))
 
 ;; GET /activity/:id
 (defn get-activity [req]
