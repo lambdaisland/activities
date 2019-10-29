@@ -3,6 +3,8 @@
    - [X] Layout
    - [ ] Login / auth
    - [-] Persistence with Crux
+     - [ ] Delete
+     - [ ] Update
    - [ ] Styling
    - [ ] More activity fields: description, date+time
    - [ ] The ability to sign up

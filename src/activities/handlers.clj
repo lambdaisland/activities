@@ -101,8 +101,8 @@
 (defn get-activities [db]
   (map
    #(crux/entity db (first %))
-   (user/q '{:find [id]
-             :where [[id :activity/title]]})))
+   (crux/q db '{:find [id]
+                :where [[id :activity/title]]})))
 
 ;; GET /activities
 (defn list-activities [req]
