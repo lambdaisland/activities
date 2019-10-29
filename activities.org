@@ -2,10 +2,11 @@
    - [X] Root handler / home~index page
    - [X] Layout
    - [ ] Login / auth
-   - [ ] Persistence with Crux
+   - [-] Persistence with Crux
    - [ ] Styling
    - [ ] More activity fields: description, date+time
    - [ ] The ability to sign up
+   - [X] Refactor the handlers
 
 
 * Things you can try yourself

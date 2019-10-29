@@ -5,6 +5,7 @@
             [integrant.core :as integrant]
             [org.httpkit.server :as httpkit]
             [reitit.ring :as reitit]
+            [crux.api :as crux]
             [ring.middleware.defaults]
             [ring.middleware.resource]
             [ring.middleware.content-type]
@@ -77,11 +78,16 @@
                (do (prn "it's not!")
                    (handler request)))))})
 
+(defn wrap-inject-crux [handler crux]
+  (fn [req]
+    (handler (assoc req :crux crux))))
+
 (defmethod integrant/init-key :ring-handler [_ config] ;; {:router reitit-router}
   (-> (:router config)
       ;; wrap-hidden-method must be applied before requests are matched with handlers
       ;; https://cljdoc.org/d/metosin/reitit-ring/0.3.9/doc/ring/restful-form-methods
       (reitit.ring/ring-handler (reitit.ring/create-default-handler) {:middleware [wrap-hidden-method]})
+      (wrap-inject-crux (:crux config))
       (ring.middleware.defaults/wrap-defaults ring-config)
       (prone/wrap-exceptions)))
 
@@ -93,6 +99,11 @@
 (defmethod integrant/halt-key! :http-kit [_ {stop-server :stop-server}]
   (stop-server))
 
+(defmethod integrant/init-key :crux [_ opts]
+  (crux/start-node opts))
+
+(defmethod integrant/halt-key! :crux [_ node]
+  (.close node))
 #_
 {:router ...reitit-router...
  :ring-handler ...ring-handler...

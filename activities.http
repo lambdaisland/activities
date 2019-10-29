@@ -25,13 +25,17 @@ POST :host/activities/activity/:id
 
 title=EDITED
 # Delete an existing activity
-DELETE :host/activities/activity/:id
+DELETE :host/activity/:id
 
 # Get an HTML form to submit a new activity.
 GET :host/activities/new
 
 # Given a valid ID, displays the page of a specific activity.
-GET :host/activities/activity/:id
+GET :host/activity/:id
 
 # Get an editable form for an existing activity
-GET :host/activities/activity/:id/edit
+GET :host/activity/:id/edit
+
+
+#
+GET :host/activity/9d70e4e9-4863-4457-8523-79d3f14c8454
