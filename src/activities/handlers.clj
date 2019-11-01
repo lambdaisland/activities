@@ -82,8 +82,6 @@
                      :where [['n :crux.db/id uuid]
                              '[n :activity/title title]]}))))
 
-;; (get-title (crux/db (user/crux)) "9d70e4e9-4863-4457-8523-79d3f14c8454")
-
 ;; GET /activity/:id
 (defn get-activity [req]
   ;; render the title with hiccup
@@ -115,16 +113,16 @@
                         [:a {:href (path req :activities.system/activity {:id id})} title]]])
                     activities)])))
 
-;; Temporary until DELETE/UPDATE are refactored
-(declare activities)
-
-;; TODO: change to use crux
 (defn update-activity [req]
   (let [id        (get-in req [:path-params :id])
-        new-title (get-in req [:params :title])]
-    (swap! activities #(assoc-in % [id :title] new-title))
-    {:status 303
-     :headers {"Location" (str "/activities/activity/" id)}}))
+        uuid      (UUID/fromString id)
+        new-title (get-in req [:params :title])
+        db        (:crux req)]
+    (crux/submit-tx db [[:crux.tx/put
+                          {:crux.db/id     uuid
+                           :activity/title new-title}]])
+    {:status  303
+     :headers {"Location" (str "/activity/" id)}}))
 
 ;; GET /activities/:id/edit
 (defn edit-activity [req]
@@ -139,12 +137,13 @@
                 [:div
                  [:input {:type "submit"}]]]])))
 
-;; TODO: change to use crux
 (defn delete-activity [req]
-  (let [id (get-in req [:path-params :id])]
-    (swap! activities #(dissoc % id))
+  (let [id   (get-in req [:path-params :id])
+        uuid (UUID/fromString id)
+        db   (:crux req)]
+    (crux/submit-tx db [[:crux.tx/delete uuid]])
     (response [:div
                [:p "Activity successfully deleted."]])))
 
 (comment
-  (reset! activities {}))
+  (get-title (crux/db (user/crux)) "9d70e4e9-4863-4457-8523-79d3f14c8454"))
