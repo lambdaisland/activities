@@ -73,7 +73,7 @@
                             :activity/title title}]])
     ;; redirect to /activity/<id>
     {:status 303
-     :headers {"Location" (str "/activities/activity/" uuid)}}))
+     :headers {"Location" (str "/activity/" uuid)}}))
 
 (defn get-title [db id]
   (let [uuid (UUID/fromString id)]
