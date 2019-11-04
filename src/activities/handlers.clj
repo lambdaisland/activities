@@ -58,38 +58,37 @@
   (response [:div
              [:form {:method "POST" :action "/activities"}
               [:div
-               [:label]
-               [:input {:name "title"}]]
+               [:label {:for "title"} "Title: "]
+               [:input {:id "title" :name "title" :type "text"}]]
+              [:div
+               [:label {:for "desc"} "Description: "]
+               [:textarea {:id "desc" :name "description" :type "msg"}]]
               [:div
                [:input {:type "submit"}]]]]))
 
 ;; POST /activity
-(defn create-activity [{{:strs [title]} :form-params
+(defn create-activity [{{:strs [title description]} :form-params
                         crux :crux}]
   (let [uuid (UUID/randomUUID)]
     ;; store activity in the database and assign it an id
     (crux/submit-tx crux [[:crux.tx/put
                            {:crux.db/id uuid
-                            :activity/title title}]])
+                            :activity/title title
+                            :activity/description description}]])
     ;; redirect to /activity/<id>
     {:status 303
      :headers {"Location" (str "/activity/" uuid)}}))
 
-(defn get-title [db id]
-  (let [uuid (UUID/fromString id)]
-    (ffirst (crux/q db
-                    {:find '[title]
-                     :where [['n :crux.db/id uuid]
-                             '[n :activity/title title]]}))))
-
 ;; GET /activity/:id
 (defn get-activity [req]
-  ;; render the title with hiccup
-  (let [id    (get-in req [:path-params :id])
-        db    (crux/db (:crux req))
-        title (get-title db id)]
+  (let [id          (get-in req [:path-params :id])
+        db          (crux/db (:crux req))
+        activity    (crux/entity db id)
+        title       (:activity/title activity)
+        description (:activity/description activity)]
     (response [:div
                [:h1 title]
+               [:p description]
                [:a {:href (path req :activities.system/edit-activity {:id id})}
                 [:button "EDIT"]]
                [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
@@ -113,30 +112,44 @@
                         [:a {:href (path req :activities.system/activity {:id id})} title]]])
                     activities)])))
 
+;; POST /activity/:id
 (defn update-activity [req]
-  (let [id        (get-in req [:path-params :id])
-        uuid      (UUID/fromString id)
-        new-title (get-in req [:params :title])
-        db        (:crux req)]
+  (let [id              (get-in req [:path-params :id])
+        uuid            (UUID/fromString id)
+        new-title       (get-in req [:params :title])
+        new-description (get-in req [:params :description])
+        db              (:crux req)]
     (crux/submit-tx db [[:crux.tx/put
-                          {:crux.db/id     uuid
-                           :activity/title new-title}]])
+                         {:crux.db/id           uuid
+                          :activity/title       new-title
+                          :activity/description new-description}]])
     {:status  303
      :headers {"Location" (str "/activity/" id)}}))
 
-;; GET /activities/:id/edit
-(defn edit-activity [req]
-  (let [id    (get-in req [:path-params :id])
-        db    (crux/db (:crux req))
-        title (get-title db id)]
+;; GET /activity/:id/edit
+(defn edit-activity
+  "Returns a page with a form to edit an existing activity."
+  [req]
+  (let [id          (get-in req [:path-params :id])
+        db          (crux/db (:crux req))
+        activity    (crux/entity db id)
+        title       (:activity/title activity)
+        description (:activity/description activity)]
     (response [:div
-               [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
+               [:form
+                {:method "POST"
+                 :action (path req :activities.system/activity {:id id})}
                 [:div
-                 [:label]
-                 [:input {:name "title" :value title}]]
+                 [:label {:for "title"} "Title: "]
+                 [:input {:id "title" :name "title" :type "text" :value title}]]
+                [:div
+                 [:label {:for "description"} "Description: "]
+                 [:textarea {:id "description" :name "description" :type "msg"}
+                  :value description]]
                 [:div
                  [:input {:type "submit"}]]]])))
 
+;; DELETE /activity/:id
 (defn delete-activity [req]
   (let [id   (get-in req [:path-params :id])
         uuid (UUID/fromString id)
