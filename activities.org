@@ -1,16 +1,24 @@
 * Todos
+   - [ ] add date+time field
+     - https://lambdaisland.com/blog/2017-07-26-dates-in-clojure-making-sense-of-the-mess 
+     - https://github.com/dm3/clojure.java-time
+   - [ ] Fix the front page -> gives error now, should redirect or render index
+   - [ ] More styling
+   - [ ] Login / auth
+     - [ ] Watch LI episode about buddy
+     - [ ] Add registration route/handler
+     - [ ] Add login route/handler
+   - [ ] participate in an activity
+
+** Done
    - [X] Root handler / home~index page
    - [X] Layout
-   - [ ] Login / auth
-   - [ ] The ability to sign up
    - [X] Persistence with Crux
      - [X] Delete
      - [X] Update
    - [X] Styling
    - [X] More activity fields: description
-   - [ ] date+time
    - [X] Refactor the handlers
-
 
 * Things you can try yourself
 ** Styling
