@@ -70,13 +70,10 @@
   {:name ::wrap-hidden-method
    :wrap (fn [handler]
            (fn [request]
-             (clojure.pprint/pprint [:request request])
              (if-let [fm (and (= :post (:request-method request)) ;; if this is a :post request
                               (hidden-method request))] ;; and there is a "_method" field
-               (do (prn (str "it's a " fm))
-                   (handler (assoc request :request-method fm)))
-               (do (prn "it's not!")
-                   (handler request)))))})
+               (handler (assoc request :request-method fm))
+               (handler request))))})
 
 (defn wrap-inject-crux [handler crux]
   (fn [req]

@@ -72,7 +72,8 @@
 
 ;; POST /activity
 (defn create-activity [{{:strs [title description]} :form-params
-                        crux :crux}]
+                        crux :crux
+                        :as req}]
   (let [uuid (UUID/randomUUID)]
     ;; store activity in the database and assign it an id
     (crux/submit-tx crux [[:crux.tx/put
@@ -81,7 +82,7 @@
                             :activity/description description}]])
     ;; redirect to /activity/<id>
     {:status 303
-     :headers {"Location" (str "/activity/" uuid)}}))
+     :headers {"Location" (path req :activities.system/activity {:id (str uuid)})}}))
 
 ;; GET /activity/:id
 (defn get-activity [req]
@@ -128,7 +129,7 @@
                           :activity/title       new-title
                           :activity/description new-description}]])
     {:status  303
-     :headers {"Location" (str "/activity/" id)}}))
+     :headers {"Location" (path req :activities.system/activity {:id id})}}))
 
 ;; GET /activity/:id/edit
 (defn edit-activity
@@ -149,7 +150,7 @@
                 [:div
                  [:label {:for "description"} "Description: "]
                  [:textarea {:id "description" :name "description" :type "msg"}
-                  :value description]]
+                  description]]
                 [:div
                  [:input {:type "submit"}]]]])))
 
