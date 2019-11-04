@@ -25,11 +25,14 @@
       (reitit.core/match-by-name route params)
       :path))
 
+;; GET /
 (defn redirect-to-activities [req]
   {:status 301
    :headers {"Location" (path req :activities.system/activities)}})
 
-(defn layout [body title]
+(defn layout
+  "Mounts a page template given a title and a hiccup body."
+  [title body]
   [:html
    [:head
     [:title title]
@@ -37,9 +40,11 @@
    [:body body]])
 
 (defn response
-  ([markup]
-   (response {} markup))
-  ([opts markup]
+  "Returns a ring response with an HTML body. Supports changing the status code,
+  replacing or adding headers and setting the title."
+  ([body]
+   (response {} body))
+  ([opts body]
    (let [{:keys [status headers title]
           :or {status 200
                headers {"Content-Type" "text/html"}
@@ -48,8 +53,7 @@
       :headers (if (contains? headers "Content-Type")
                  headers
                  (assoc headers "Content-Type" "text/html"))
-      :body (-> markup
-                (layout title)
+      :body (-> (layout title body)
                 hiccup/html
                 str)})))
 
@@ -157,6 +161,3 @@
     (crux/submit-tx db [[:crux.tx/delete uuid]])
     (response [:div
                [:p "Activity successfully deleted."]])))
-
-(comment
-  (get-title (crux/db (user/crux)) "9d70e4e9-4863-4457-8523-79d3f14c8454"))
