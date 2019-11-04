@@ -2,7 +2,8 @@
   (:require [hiccup2.core :as hiccup]
             [clojure.pprint]
             [reitit.core]
-            [crux.api :as crux])
+            [crux.api :as crux]
+            [activities.flexmark :as flexmark])
   (:import [java.util UUID]))
 
 #_
@@ -93,7 +94,8 @@
         description (:activity/description activity)]
     (response [:div
                [:h1 title]
-               [:p description]
+               [:div
+                (hiccup/raw (flexmark/md->html description))]
                [:a {:href (path req :activities.system/edit-activity {:id id})}
                 [:button "EDIT"]]
                [:form {:method "POST" :action (path req :activities.system/activity {:id id})}
@@ -150,7 +152,7 @@
                 [:div
                  [:label {:for "description"} "Description: "]
                  [:textarea {:id "description" :name "description" :type "msg"}
-                  description]]
+                  :value description]]
                 [:div
                  [:input {:type "submit"}]]]])))
 
