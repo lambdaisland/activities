@@ -26,21 +26,10 @@
   (expand [this _]
     {:handler this}))
 
-(def wrap-styles
-  {:name ::wrap-styles
-   :wrap (fn [handler]
-           (fn [request]
-             (-> request
-                 handler
-                 (ring.middleware.resource/wrap-resource "public")
-                 (ring.middleware.content-type/wrap-content-type)
-                 (ring.middleware.not-modified/wrap-not-modified))))})
-
 (def routes
   [["/"
     {:name       ::index
-     :get        #'handlers/redirect-to-activities
-     :middleware [wrap-styles]}]
+     :get        #'handlers/redirect-to-activities}]
    ["/activities" {:name ::activities}
     ["" {:get  #'handlers/list-activities
          :post #'handlers/create-activity}]
