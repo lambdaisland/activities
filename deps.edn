@@ -10,7 +10,10 @@
         prone                         {:mvn/version "2019-07-08"}
         juxt/crux-core                {:mvn/version "19.09-1.5.0-alpha"}
         juxt/crux-rocksdb             {:mvn/version "19.09-1.5.0-alpha"}
-        com.vladsch.flexmark/flexmark {:mvn/version "0.50.42"}}
+        com.vladsch.flexmark/flexmark {:mvn/version "0.50.42"}
+        clojure.java-time             {:mvn/version "0.3.2"}
+        buddy/buddy-auth              {:mvn/version "2.2.0"}
+        buddy/buddy-hashers           {:mvn/version "1.4.0"}}
 
  :paths ["src" "test" "resources"]
 
