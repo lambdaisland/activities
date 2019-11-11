@@ -11,10 +11,22 @@
 (crux/submit-tx (user/crux)
                 [[:crux.tx/put
                   {:crux.db/id #uuid "f190baa5-5c9d-4506-b7bc-901ef175dcf0"
-                   :activity/title "Activity 01"}]
+                   :activity/title "Activity 01"
+                   :activity/description "Description 01"
+                   :activity/date-time (time/local-date-time "2019-11-11T09:00")
+                   :activity/duration (time/duration (time/minutes 30))
+                   :activity/capacity 8
+                   :activity/creator nil
+                   :activity/participants #{}}]
                  [:crux.tx/put
                   {:crux.db/id #uuid "9d70e4e9-4863-4457-8523-79d3f14c8454"
-                   :activity/title "Activity 02"}]])
+                   :activity/title "Activity 02"
+                   :activity/description "Description 02"
+                   :activity/date-time (time/local-date-time "2019-12-25T21:00")
+                   :activity/duration (time/duration (time/minutes 120))
+                   :activity/capacity 7
+                   :activity/creator nil
+                   :activity/participants #{}}]])
 
 (defn debug-request [req]
   {:status 200
