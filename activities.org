@@ -11,6 +11,8 @@
      - [ ] Add registration handler
      - [ ] Add login handler
    - [ ] participate in an activity
+   - [ ] Watch lambda island clojure.spec
+   - [ ] Validate and conform data with spec
 
 ** Done
    - [X] Root handler / home~index page
