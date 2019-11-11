@@ -10,7 +10,9 @@
             [ring.middleware.resource]
             [ring.middleware.content-type]
             [ring.middleware.not-modified]
-            [prone.middleware :as prone]))
+            [prone.middleware :as prone]
+            [buddy.auth.middleware :refer [wrap-authentication]]
+            [buddy.auth.backends :as backends]))
 
 (defmethod aero/reader 'ig/ref
   [_ _ value]
@@ -36,22 +38,30 @@
 
 (def routes
   [["/"
-    {:name ::index
-     :get #'handlers/redirect-to-activities
+    {:name       ::index
+     :get        #'handlers/redirect-to-activities
      :middleware [wrap-styles]}]
    ["/activities" {:name ::activities}
-    ["" {:get    #'handlers/list-activities
-         :post   #'handlers/create-activity}]
+    ["" {:get  #'handlers/list-activities
+         :post #'handlers/create-activity}]
     ["/new" {:name ::new-activity
              :get  #'handlers/new-activity-form}]]
    ["/activity" {}
     ["/:id" {}
-     ["" {:name ::activity
-          :get #'handlers/get-activity
-          :post #'handlers/update-activity
+     ["" {:name   ::activity
+          :get    #'handlers/get-activity
+          :post   #'handlers/update-activity
           :delete #'handlers/delete-activity}]
      ["/edit" {:name ::edit-activity
-               :get #'handlers/edit-activity}]]]])
+               :get  #'handlers/edit-activity}]]]
+   ["/login" {}
+    ["" {:name ::login-form
+         :get  #'handlers/login-form
+         :post #'handlers/login-submission}]]
+   ["/register" {}
+    ["" {:name ::register
+         :get  #'handlers/register-form
+         :post #'handlers/register-submission}]]])
 
 (defmethod integrant/init-key :router [_ config] ;; {}
   (reitit.ring/router routes))
@@ -85,6 +95,7 @@
       ;; https://cljdoc.org/d/metosin/reitit-ring/0.3.9/doc/ring/restful-form-methods
       (reitit.ring/ring-handler (reitit.ring/create-default-handler) {:middleware [wrap-hidden-method]})
       (wrap-inject-crux (:crux config))
+      (wrap-authentication (backends/session)) ;FIX
       (ring.middleware.defaults/wrap-defaults ring-config)
       (prone/wrap-exceptions)))
 
