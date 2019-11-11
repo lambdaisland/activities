@@ -117,8 +117,8 @@
     :as req}]
   (let [uuid (UUID/randomUUID)
         date-time (time/local-date-time datetime)
-        duration (time/duration (time/minutes (Integer. duration)))
-        capacity (Integer. capacity)]
+        duration (time/duration (time/minutes (Long/parseLong duration)))
+        capacity (Long/parseLong capacity)]
     ;; store activity in the database and assign it an id
     (crux/submit-tx crux [[:crux.tx/put
                            {:crux.db/id uuid
@@ -182,8 +182,8 @@
         new-title       (get-in req [:params :title])
         new-description (get-in req [:params :description])
         new-date        (time/local-date-time (get-in req [:params :datetime]))
-        new-duration    (time/duration (time/minutes (.Integer (get-in req [:params :duration]))))
-        new-capacity    (.Integer (get-in req [:params :capacity]))
+        new-duration    (time/duration (time/minutes (Long/parseLong (get-in req [:params :duration]))))
+        new-capacity    (Long/parseLong (get-in req [:params :capacity]))
         db              (:crux req)]
     (crux/submit-tx db [[:crux.tx/put
                          {:crux.db/id           uuid
