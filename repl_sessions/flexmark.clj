@@ -1,8 +1,7 @@
 (ns repl-sessions.flexmark
   (:import (com.vladsch.flexmark.parser Parser)
            (java.util ArrayList)
-           (com.vladsch.flexmark.html HtmlRenderer)
-           ))
+           (com.vladsch.flexmark.html HtmlRenderer)))
 
 ;; import com.vladsch.flexmark.util.ast.Node
 ;; import com.vladsch.flexmark.html.HtmlRenderer

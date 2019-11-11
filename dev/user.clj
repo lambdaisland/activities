@@ -27,3 +27,4 @@
 
 (defn clear-db []
   (crux/submit-tx (crux) (mount-delete-ops)))
+
