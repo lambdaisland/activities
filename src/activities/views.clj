@@ -93,7 +93,10 @@
         [:div
          [:button.auth-submit {:type "submit" :value "Submit"} "Sign Up"]]]]]]))
 
-(defn login [& [email msg]]
+(defn input-field [req opts]
+  [:input (assoc opts :value (get-in req [:params (keyword (:name opts))]))])
+
+(defn login [req & [msg]]
   (let [error-msg [:div [:small.auth-error msg]]]
     [:main
      [:header.title [:h1.title-heading "Activities"]]
@@ -104,11 +107,11 @@
        [:div.auth-field-title
         [:label {:for "email"} "Email: "]
         [:div
-         [:input.auth-field-input {:id "email"
-                                   :name "email"
-                                   :type "email"
-                                   :required true
-                                   :value email}]]]
+         (input-field req {:id "email"
+                           :name "email"
+                           :type "email"
+                           :class "auth-field-input"
+                           :required true})]]
        [:div.auth-field-title
         [:label {:for "password"} "Password (8 characters minimum): "]
         [:div
