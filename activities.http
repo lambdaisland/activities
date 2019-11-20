@@ -1,13 +1,31 @@
 # -*- mode: restclient -*-
 # Emacs restclient examples for the Activities application
 
-# Variables
-:host  = http://localhost:5387
-:id    = 9d70e4e9-4863-4457-8523-79d3f14c8454
-:title = Hello from Emacs
+#############
+# VARIABLES #
+#############
+
+# HOST VARIABLES
+:host = http://localhost:5387
+
+# ACTIVITY VARIABLES
+:id          = 9d70e4e9-4863-4457-8523-79d3f14c8454
+:title       = Hello from Emacs
 :form-header = <<
 Content-Type: application/x-www-form-urlencoded
 #
+
+# USER VARIABLES
+:name     = John Doe
+:email    = johndoe@example.com
+:password = 12345678
+
+#####################
+# ACTIVITY REQUESTS #
+#####################
+
+# INDEX
+GET :host
 
 # LIST ACTIVITIES
 GET :host/activities
@@ -15,23 +33,49 @@ GET :host/activities
 # NEW ACTIVITY FORM
 GET :host/activities/new
 
-# NEW ACTIVITY
+# SUBMIT NEW ACTIVITY
 POST :host/activities
 :form-header
 
 title=:title
 
-# ACTIVITY
+# SINGLE ACTIVITY PAGE
 GET :host/activity/:id
 
 # EDIT ACTIVITY FORM
 GET :host/activity/:id/edit
 
-# EDIT ACTIVITY
+# SUBMIT EDITED ACTIVITY
 POST :host/activities/activity/:id
 :form-header
 
 title=EDITED
 
-# DELETE ACTIVITY
+# DELETE AN ACTIVITY
 DELETE :host/activity/:id
+
+#################
+# AUTH REQUESTS #
+#################
+
+# GET LOGIN FORM
+GET :host/login
+
+# SUBMIT LOGIN FORM
+POST :host/login
+:form-header
+
+email=:email
+password=:password
+
+# GET REGISTRATION FORM
+GET :host/register
+
+# SUBMIT REGISTRATION FORM
+POST :host/register
+:form-header
+
+name=:name
+email=:email
+password=:password
+password=:password

@@ -4,7 +4,10 @@
             [reitit.core]
             [crux.api :as crux]
             [activities.flexmark :as flexmark]
-            [java-time :as time])
+            [java-time :as time]
+            [activities.render :refer [flash-message]]
+            [activities.views :as views]
+            [buddy.hashers :refer [derive check]])
   (:import [java.util UUID]))
 
 #_
@@ -42,16 +45,6 @@
   {:status 301
    :headers {"Location" (path req :activities.system/activities)}})
 
-(defn layout
-  "Mounts a page template given a title and a hiccup body."
-  [title body]
-  [:html
-   [:head
-    [:title title]
-    [:meta {:name "viewport" :content "width=device-width"}]
-    [:link {:rel "stylesheet" :href "/styles.css"}]]
-   [:body body]])
-
 (defn response
   "Returns a ring response with an HTML body. Supports changing the status code,
   replacing or adding headers and setting the title."
@@ -66,7 +59,7 @@
       :headers (if (contains? headers "Content-Type")
                  headers
                  (assoc headers "Content-Type" "text/html"))
-      :body (-> (layout title body)
+      :body (-> (views/layout title body)
                 hiccup/html
                 str)})))
 
@@ -272,9 +265,62 @@
     (response [:div
                [:p "Activity successfully deleted."]])))
 
-(declare login-form login-submission register-form register-submission)
+;; GET /login
+(defn login-form [_]
+  (response {:title "Login"} (views/login)))
 
-;; TODO: GET /login
-;; TODO: POST /login
-;; TODO: GET /register
-;; TODO: POST /register
+(defn get-user-id [db email]
+  (not-empty (crux/q (crux/db db) {:find '[uuid]
+                                   :where [['uuid ':user/email email]]})))
+
+;; POST /login
+(defn login-submission [req]
+  (let [email    (get-in req [:params :email])
+        password (get-in req [:params :password])
+        db       (:crux req)]
+    (if-let [uuid (ffirst (get-user-id db email))]
+      (let [user (crux/entity (crux/db db) uuid)]
+        (if (check password (:user/password user))
+          (let [next-session (-> (assoc (:session req) :identity uuid)
+                                 (with-meta {:recreate true}))]
+            (-> (redirect-to-activities req)
+                (assoc :session next-session)
+                (flash-message "Login successful, welcome back!")))
+          (response {:title "Login"}
+                    (views/login email "Wrong password."))))
+      (response {:title "Login"}
+                (views/login email "Email not found. Please register")))))
+
+;; GET /register
+(defn register-form [_]
+  (response (views/register)))
+
+;; POST /register
+(defn register-submission [req]
+  (let [name        (get-in req [:params :name])
+        email       (get-in req [:params :email])
+        password    (get-in req [:params :password])
+        [pwd1 pwd2] password
+        db          (:crux req)]
+    (if (get-user-id db email)
+      (response {:title "Register"}
+                (views/register name email "Email already registered."))
+      (if (= pwd1 pwd2)
+        (let [password-hash (derive pwd1)
+              uuid          (java.util.UUID/randomUUID)
+              next-session  (assoc (:session req) :identity uuid)]
+          (crux/submit-tx db [[:crux.tx/put
+                               {:crux.db/id    uuid
+                                :user/name     name
+                                :user/email    email
+                                :user/password password-hash}]])
+          (-> (redirect-to-activities req)
+              (assoc :session next-session)
+              (flash-message "Registration successful. Welcome on board!")))
+        (response {:title "Register"}
+                  (views/register name email "Passwords don't match"))))))
+
+;; GET /logout
+(defn logout [req]
+  (-> (redirect-to-activities req)
+      (assoc :session nil)))

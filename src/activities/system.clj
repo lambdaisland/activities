@@ -50,7 +50,10 @@
    ["/register" {}
     ["" {:name ::register
          :get  #'handlers/register-form
-         :post #'handlers/register-submission}]]])
+         :post #'handlers/register-submission}]]
+   ["/logout" {}
+    ["" {:name ::logout
+         :get #'handlers/logout}]]])
 
 (defmethod integrant/init-key :router [_ config] ;; {}
   (reitit.ring/router routes))
