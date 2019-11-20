@@ -1,18 +1,7 @@
 * Todos
-   - [X] add date+time field
-     - https://lambdaisland.com/blog/2017-07-26-dates-in-clojure-making-sense-of-the-mess 
-     - https://github.com/dm3/clojure.java-time
-   - [X] Fix the front page -> gives error now, should redirect or render index
-   - [X] More styling
-   - [-] Login / auth
-     - [X] Watch LI episode about buddy
-     - [X] Add registration route
-     - [X] Add login route
-     - [ ] Add registration handler
-     - [ ] Add login handler
    - [ ] participate in an activity
-   - [ ] Watch lambda island clojure.spec
    - [ ] Validate and conform data with spec
+   - [ ] Write a proposal for an MVP  
 
 ** Done
    - [X] Root handler / home~index page
@@ -23,6 +12,18 @@
    - [X] Styling
    - [X] More activity fields: description
    - [X] Refactor the handlers
+   - [X] add date+time field
+     - https://lambdaisland.com/blog/2017-07-26-dates-in-clojure-making-sense-of-the-mess 
+     - https://github.com/dm3/clojure.java-time
+   - [X] Fix the front page -> gives error now, should redirect or render index
+   - [X] More styling
+   - [X] Login / auth
+     - [X] Watch LI episode about buddy
+     - [X] Add registration route
+     - [X] Add login route
+     - [X] Add registration handler
+     - [X] Add login handler
+   - [X] Watch lambda island clojure.spec
 
 * Things you can try yourself
 ** Styling
