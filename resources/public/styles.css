@@ -1,120 +1,120 @@
-* {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
+:root {
     box-sizing: border-box;
     font-family: sans-serif;
 }
 
-body {
-    padding: 20px 15%;
-}
-
-form header {
-    margin: 0 0 20px 0;
-}
-
-form header div {
-    font-size: 90%;
-    color: #999;
-}
-
-form header h2 {
-    margin: 0 0 5px 0;
-}
-
-form>div {
-    clear: both;
-    overflow: hidden;
-    padding: 1px;
-    margin: 0 0 10px 0;
-}
-
-form>div>fieldset>div>div {
-    margin: 0 0 5px 0;
-}
-
-form>div>label,
-legend {
-    width: 25%;
-    float: left;
-    padding-right: 10px;
-}
-
-form>div>div,
-form>div>fieldset>div {
-    width: 75%;
-    float: right;
-}
-
-form>div>fieldset label {
-    font-size: 90%;
-}
-
-fieldset {
+html {
     border: 0;
-    padding: 0;
 }
 
-input[type=text],
-input[type=email],
-input[type=url],
-input[type=password],
-textarea {
+body {
+    margin: 0;
+    min-height: 100vh;
+}
+
+.navbar {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.navbar-title {
+    line-height: 1rem;
+    padding: 1rem;
+    margin: 0;
+}
+
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+}
+
+.navbar-menu > li {
+    padding: 1rem;
+}
+
+.navbar-menu > li > a {
+    color: darkslategrey;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navbar-menu > li > a:hover {
+    color: hsla();
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    color: darkslategrey;
+}
+
+.title-heading {
+    font-size: 4rem;
+    text-align: center;
+}
+
+.auth {
+    display: flex;
+    background-color: hsl(20, 100%, 70%);
+    background-image: linear-gradient(to right bottom, hsl(20, 100%, 70%), hsl(358, 100%, 68%));
+    padding: 2rem;
+    height: 100%;
+    color: snow;
+    min-width: 300px;
+    max-width: 401px;
+}
+
+.auth form {
     width: 100%;
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #eee;
-    border-bottom: 1px solid #eee;
 }
 
-input[type=text],
-input[type=email],
-input[type=url],
-input[type=password] {
-    width: 50%;
+.auth-title {
+    margin-bottom: .5rem;
 }
 
-input[type=text]:focus,
-input[type=email]:focus,
-input[type=url]:focus,
-input[type=password]:focus,
-textarea:focus {
-    outline: 0;
-    border-color: #4697e4;
+.auth-field-title {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
 }
 
-@media (max-width: 600px) {
-    form>div {
-        margin: 0 0 15px 0;
-    }
-
-    form>div>label,
-    legend {
-        width: 100%;
-        float: none;
-        margin: 0 0 5px 0;
-    }
-
-    form>div>div,
-    form>div>fieldset>div {
-        width: 100%;
-        float: none;
-    }
-
-    input[type=text],
-    input[type=email],
-    input[type=url],
-    input[type=password],
-    textarea,
-    select {
-        width: 100%;
-    }
+.auth-field-input {
+    width: 100%;
+    background-color: transparent;
+    border-style: none;
+    border-bottom: .2rem solid snow;
+    color: snow;
+    line-height: 2rem;
+    font-size: large;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
-@media (min-width: 1200px) {
+.auth-error {
+    background-color: crimson;
+    display: block;
+    font-weight: bold;
+    padding: .5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
 
-    form>div>label,
-    legend {
-        text-align: right;
-    }
+.auth-submit {
+    background-image: linear-gradient(to right bottom, steelblue, teal);
+    border-style: none;
+    font-weight: bold;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    color: snow;
+    font-size: x-large;
 }
