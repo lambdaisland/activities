@@ -7,7 +7,7 @@
             [java-time :as time]
             [activities.render :refer [flash-message]]
             [activities.views :as views]
-            [buddy.hashers :refer [derive check]])
+            [buddy.hashers])
   (:import [java.util UUID]))
 
 #_
@@ -280,7 +280,7 @@
         db       (:crux req)]
     (if-let [uuid (ffirst (get-user-id db email))]
       (let [user (crux/entity (crux/db db) uuid)]
-        (if (check password (:user/password user))
+        (if (buddy.hashers/check password (:user/password user))
           (let [next-session (-> (assoc (:session req) :identity uuid)
                                  (with-meta {:recreate true}))]
             (-> (redirect-to-activities req)
@@ -306,7 +306,7 @@
       (response {:title "Register"}
                 (views/register name email "Email already registered."))
       (if (= pwd1 pwd2)
-        (let [password-hash (derive pwd1)
+        (let [password-hash (buddy.hashers/derive pwd1)
               uuid          (java.util.UUID/randomUUID)
               next-session  (assoc (:session req) :identity uuid)]
           (crux/submit-tx db [[:crux.tx/put
