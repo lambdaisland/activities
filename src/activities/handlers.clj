@@ -109,15 +109,17 @@
   (let [uuid (UUID/randomUUID)
         date-time (time/local-date-time datetime)
         duration (time/duration (time/minutes (Long/parseLong duration)))
-        capacity (Long/parseLong capacity)]
+        capacity (Long/parseLong capacity)
+        activity {:crux.db/id uuid
+                  :activity/title title
+                  :activity/description description
+                  :activity/date-time date-time
+                  :activity/duration duration
+                  :activity/capacity capacity}]
     ;; store activity in the database and assign it an id
-    (crux/submit-tx crux [[:crux.tx/put
-                           {:crux.db/id uuid
-                            :activity/title title
-                            :activity/description description
-                            :activity/date-time date-time
-                            :activity/duration duration
-                            :activity/capacity capacity}]])
+    (if (s/valid? :activities/activity activity)
+      (crux/submit-tx crux [[:crux.tx/put activity]])
+      {:status 400 :body (s/explain-str ...)})
     ;; redirect to /activity/<id>
     {:status 303
      :headers
