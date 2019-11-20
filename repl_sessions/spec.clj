@@ -11,3 +11,14 @@
 (s/def ::participants (s/coll-of ::uuid :kind set? :into #{}))
 
 (s/valid? ::participants #{#uuid "3a875c6e-985b-4330-816c-6cca2dc4d812" #uuid "e813399b-eb22-4b0d-8563-5088853eb2d0"})
+
+
+(s/def ::test (s/or :an-int int?
+                    :a-string string?))
+
+(s/conform ::test "test")
+
+(s/def ::some-id (s/and #(re-seq #"^[0-9]+$" %)
+                        (s/conformer #(Long/parseLong %))))
+
+(s/conform ::some-id "123")
