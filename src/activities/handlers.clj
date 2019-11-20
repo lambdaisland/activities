@@ -266,8 +266,8 @@
                [:p "Activity successfully deleted."]])))
 
 ;; GET /login
-(defn login-form [_]
-  (response {:title "Login"} (views/login)))
+(defn login-form [req]
+  (response {:title "Login"} (views/login req)))
 
 (defn get-user-id [db email]
   (not-empty (crux/q (crux/db db) {:find '[uuid]
@@ -287,9 +287,9 @@
                 (assoc :session next-session)
                 (flash-message "Login successful, welcome back!")))
           (response {:title "Login"}
-                    (views/login email "Wrong password."))))
+                    (views/login req "Wrong password."))))
       (response {:title "Login"}
-                (views/login email "Email not found. Please register")))))
+                (views/login req "Email not found. Please register")))))
 
 ;; GET /register
 (defn register-form [_]
@@ -324,3 +324,4 @@
 (defn logout [req]
   (-> (redirect-to-activities req)
       (assoc :session nil)))
+
