@@ -75,7 +75,4 @@ GET :host/register
 POST :host/register
 :form-header
 
-name=:name
-email=:email
-password=:password
-password=:password
+name=:name&email=:emaili&password=:password&password=:password
