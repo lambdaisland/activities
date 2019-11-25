@@ -7,7 +7,8 @@
             [java-time :as time]
             [activities.render :refer [flash-message]]
             [activities.views :as views]
-            [buddy.hashers])
+            [buddy.hashers]
+            [clojure.spec.alpha :as s])
   (:import [java.util UUID]))
 
 #_
@@ -101,29 +102,50 @@
                [:div
                 [:input {:type "submit" :value "Submit Activity"}]]]]]))
 
+;; (def test-activity
+;;   {:crux.db/id            #uuid "867f7291-ea56-4102-9053-8e52d2570504"
+;;    :activity/title        "bru"
+;;    :activity/description  "Curabitur lacinia pulvinar nibh."
+;;    :activity/date-time    #object[java.time.LocalDateTime 0x51961e7 "2019-11-25T09:20:21.986435"]
+;;    :activity/duration     #object[java.time.Duration 0x50fc9068 "PT0S"]
+;;    :activity/capacity     0
+;;    :activity/creator      #uuid "ca21035b-d15f-4fc5-a132-def7da608953"
+;;    :activity/participants #{#uuid "14fa320b-dcee-4ed5-a171-46ac148fdba1" #uuid "21e5c0ae-5b1c-4093-b908-05dcf38a79d8"}})
+;; No reader function for tag object
+
+(s/def :crux.db/id uuid?)
+(s/def :activity/title string?)
+(s/def :activity/description string?)
+(s/def :activity/date-time (partial instance? java.time.LocalDateTime))
+(s/def :activity/duration (partial instance? java.time.Duration))
+(s/def :activity/capacity (partial instance? java.lang.Long))
+;; (s/def ::creator uuid?)
+(s/def :activity/participants (s/coll-of ::uuid :kind set? :distinct true :min-count 0 :into #{}))
+
+(s/def :activities/activity (s/keys :req [:crux.db/id :activity/title :activity/date-time :activity/duration :activity/capacity]
+                                    :opts [:activity/description :activity/participants]))
+
 ;; POST /activity
 (defn create-activity
   [{{:strs [title description datetime duration capacity]} :form-params
-    crux :crux
-    :as req}]
-  (let [uuid (UUID/randomUUID)
+    crux                                                   :crux
+    :as                                                    req}]
+  (let [uuid      (UUID/randomUUID)
         date-time (time/local-date-time datetime)
-        duration (time/duration (time/minutes (Long/parseLong duration)))
-        capacity (Long/parseLong capacity)
-        activity {:crux.db/id uuid
-                  :activity/title title
-                  :activity/description description
-                  :activity/date-time date-time
-                  :activity/duration duration
-                  :activity/capacity capacity}]
-    ;; store activity in the database and assign it an id
+        duration  (time/duration (time/minutes (Long/parseLong duration)))
+        capacity  (Long/parseLong capacity)
+        activity  {:crux.db/id           uuid
+                   :activity/title       title
+                   :activity/description description
+                   :activity/date-time   date-time
+                   :activity/duration    duration
+                   :activity/capacity    capacity}]
     (if (s/valid? :activities/activity activity)
-      (crux/submit-tx crux [[:crux.tx/put activity]])
-      {:status 400 :body (s/explain-str ...)})
-    ;; redirect to /activity/<id>
-    {:status 303
-     :headers
-     {"Location" (path req :activities.system/activity {:id (str uuid)})}}))
+      ;; store activity in the database and assign it an id
+      (do (crux/submit-tx crux [[:crux.tx/put activity]])
+          ;; redirect to /activity/<id>
+          {:status 303 :headers {"Location" (path req :activities.system/activity {:id (str uuid)})}})
+      {:status 400 :body (s/explain-str :activities/activity activity)})))
 
 ;; GET /activity/:id
 (defn get-activity [req]
