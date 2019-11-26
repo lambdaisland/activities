@@ -125,6 +125,25 @@
 (s/def :activities/activity (s/keys :req [:crux.db/id :activity/title :activity/date-time :activity/duration :activity/capacity]
                                     :opts [:activity/description :activity/participants]))
 
+;; (defn create-activity
+;;   "Handler. Receives a request with form parameters to generate a new activity,
+;;    conforms the input and, if a valid activity, inserts the new activity in the
+;;    database and redirects the user to the new activity page. If invalid, returns
+;;    a 400 with a Spec explanation string."
+;;  [{:keys [form-params crux]
+;;    :as   request}
+;;   (let [activity (s/conform ::create-activity-form form-params)]
+;;     (case params
+;;       :clojure.spec/invalid {:status 400
+;;                              :body (s/explain-str
+;;                                     ::create-activity-form form-params)}
+;;       :else (do (crux/submit-tx crux [[:crux.tx/put activity]])
+;;                 {:status 303
+;;                  :headers {"Location"
+;;                            (path request
+;;                                  :activities.system/activity
+;;                                  {:id (str (java.util.UUID/randomUUID))})}})))])
+
 ;; POST /activity
 (defn create-activity
   [{{:strs [title description datetime duration capacity]} :form-params
