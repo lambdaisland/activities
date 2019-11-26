@@ -31,3 +31,13 @@
 (defn clear-db []
   (crux/submit-tx (crux) (mount-delete-ops)))
 
+(def last-requests (atom []))
+(def last-responses (atom []))
+
+(defn wrap-capture-request-response [handler]
+  (fn [req]
+    (swap! last-requests conj req)
+    (let [res (handler req)]
+      (swap! last-responses conj res)
+      res)))
+

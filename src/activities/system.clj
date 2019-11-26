@@ -82,14 +82,16 @@
     (handler (assoc req :crux crux))))
 
 (defmethod integrant/init-key :ring-handler [_ config] ;; {:router reitit-router}
-  (-> (:router config)
-      ;; wrap-hidden-method must be applied before requests are matched with handlers
-      ;; https://cljdoc.org/d/metosin/reitit-ring/0.3.9/doc/ring/restful-form-methods
-      (reitit.ring/ring-handler (reitit.ring/create-default-handler) {:middleware [wrap-hidden-method]})
-      (wrap-inject-crux (:crux config))
-      (wrap-authentication (backends/session)) ;FIX
-      (ring.middleware.defaults/wrap-defaults ring-config)
-      (prone/wrap-exceptions)))
+  (let [wrap-req-res (or (requiring-resolve 'user/wrap-capture-request-response) identity)]
+    (-> (:router config)
+        ;; wrap-hidden-method must be applied before requests are matched with handlers
+        ;; https://cljdoc.org/d/metosin/reitit-ring/0.3.9/doc/ring/restful-form-methods
+        (reitit.ring/ring-handler (reitit.ring/create-default-handler) {:middleware [wrap-hidden-method]})
+        wrap-req-res
+        (wrap-inject-crux (:crux config))
+        (wrap-authentication (backends/session)) ;FIX
+        (ring.middleware.defaults/wrap-defaults ring-config)
+        (prone/wrap-exceptions))))
 
 (defmethod integrant/init-key :http-kit [_ config] ;; {:port 5387 :handler ...ring-handler...}
   (assoc config
