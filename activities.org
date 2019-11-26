@@ -96,11 +96,11 @@
 ** Registered but logged out user can
 *** DONE Login
 ** A registered and logged in user can
-*** TODO View a page with his/her account details
-*** TODO Edit the name associated with his/her account ID
-*** TODO Edit his/her email address
-*** TODO Add a profile picture
-*** TODO Participate in an activity with at least one empty slot
+*** TODO ~ View a page with his/her account details
+*** TODO ~ Edit the name associated with his/her account ID
+*** TODO ~ Edit his/her email address
+*** TODO ~ Add a profile picture -> gravatar
+*** TODO [#A] Participate in an activity with at least one empty slot
 *** TODO Cancel participation in an activity he/she previously registered to participate
 *** TODO View a list of all the activities he/she is registered to participate
 *** TODO Create a new activity that will be owned by his/her ID
@@ -108,8 +108,8 @@
 *** TODO Delete an activity owned by his/her ID
 *** TODO View a list of all the activities he/she created
 *** TODO Logout
-*** TODO Delete his/her account
-* MVP Proposal considering multiple Events
+*** TODO ~ Delete his/her account
+* ~ MVP Proposal considering multiple Events
 ** All users can
 *** TODO Browse the list of all active events
 *** TODO Browse the details of a specific event
