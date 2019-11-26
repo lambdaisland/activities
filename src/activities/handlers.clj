@@ -4,6 +4,7 @@
             [reitit.core]
             [crux.api :as crux]
             [activities.flexmark :as flexmark]
+            [activities.user :as user]
             [java-time :as time]
             [activities.render :refer [flash-message]]
             [activities.views :as views]
@@ -55,12 +56,15 @@
    (let [{:keys [status headers title]
           :or {status 200
                headers {"Content-Type" "text/html"}
-               title "Activities"}} opts]
+               title "Activities"}} opts
+         user-id (user/req->id req)
+         username (when user-id
+                    (-> req :crux crux/db (crux/entity user-id) :user/name))]
      {:status status
       :headers (if (contains? headers "Content-Type")
                  headers
                  (assoc headers "Content-Type" "text/html"))
-      :body (-> (views/layout title body)
+      :body (-> (views/layout title username body)
                 hiccup/html
                 str)})))
 
