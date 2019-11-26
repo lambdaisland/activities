@@ -49,9 +49,9 @@
 (defn response
   "Returns a ring response with an HTML body. Supports changing the status code,
   replacing or adding headers and setting the title."
-  ([body]
-   (response {} body))
-  ([opts body]
+  ([req body]
+   (response req {} body))
+  ([req opts body]
    (let [{:keys [status headers title]
           :or {status 200
                headers {"Content-Type" "text/html"}
@@ -65,42 +65,42 @@
                 str)})))
 
 ;; GET /activity/new
-(defn new-activity-form [_]
-  (response [:div
-             [:form {:method "POST" :action "/activities"}
-              [:header
-               [:h2 "New Activity Proposal"]
-               [:p "So you have an awesome idea for an activity? Publish it to
+(defn new-activity-form [req]
+  (response req [:div
+                 [:form {:method "POST" :action "/activities"}
+                  [:header
+                   [:h2 "New Activity Proposal"]
+                   [:p "So you have an awesome idea for an activity? Publish it to
                     the community so that others can join you :3"]]
-              [:div
-               [:label {:for "title"} "Title: "]
-               [:div
-                [:input {:id "title" :name "title" :type "text"}]]]
-              [:div
-               [:label {:for "desc"} "Description: "]
-               [:div
-                [:textarea {:id "desc" :name "description" :type "msg"}]]]
-              [:div
-               [:label {:for "datetime"} "Date-time: "]
-               [:div
-                [:input {:id "datetime"
-                         :type "datetime-local"
-                         :name "datetime"}]]]
-              [:div
-               [:label {:for "duration"} "And a duration (in minutes): "]
-               [:div
-                [:input {:id "duration"
-                         :type "number"
-                         :name "duration"}]]]
-              [:div
-               [:label {:for "capacity"} "Max. number of participants: "]
-               [:input {:id "capacity"
-                        :type "number"
-                        :name "capacity"
-                        :min 1 :max 10}]]
-              [:div
-               [:div
-                [:input {:type "submit" :value "Submit Activity"}]]]]]))
+                  [:div
+                   [:label {:for "title"} "Title: "]
+                   [:div
+                    [:input {:id "title" :name "title" :type "text"}]]]
+                  [:div
+                   [:label {:for "desc"} "Description: "]
+                   [:div
+                    [:textarea {:id "desc" :name "description" :type "msg"}]]]
+                  [:div
+                   [:label {:for "datetime"} "Date-time: "]
+                   [:div
+                    [:input {:id "datetime"
+                             :type "datetime-local"
+                             :name "datetime"}]]]
+                  [:div
+                   [:label {:for "duration"} "And a duration (in minutes): "]
+                   [:div
+                    [:input {:id "duration"
+                             :type "number"
+                             :name "duration"}]]]
+                  [:div
+                   [:label {:for "capacity"} "Max. number of participants: "]
+                   [:input {:id "capacity"
+                            :type "number"
+                            :name "capacity"
+                            :min 1 :max 10}]]
+                  [:div
+                   [:div
+                    [:input {:type "submit" :value "Submit Activity"}]]]]]))
 
 ;; (def test-activity
 ;;   {:crux.db/id            #uuid "867f7291-ea56-4102-9053-8e52d2570504"
@@ -177,22 +177,22 @@
         time        (time/format "hh:mm" (:activity/date-time activity))
         duration    (time/as (:activity/duration activity) :minutes)
         capacity    (:activity/capacity activity)]
-    (response [:div
-               [:h1 title]
-               [:div
-                (hiccup/raw (flexmark/md->html description))]
-               [:div
-                [:p (str "On: " date)]
-                [:p (str "At: " time)]
-                [:p (str "For: " duration "m")]]
-               [:div
-                [:p (str "Capacity: " capacity)]]
-               [:a {:href (path req :activities.system/edit-activity {:id id})}
-                [:button "EDIT"]]
-               [:form {:method "POST"
-                       :action (path req :activities.system/activity {:id id})}
-                [:input {:type "hidden" :name "_method" :value "delete"}]
-                [:input {:type "submit" :value "Delete"}]]])))
+    (response req [:div
+                   [:h1 title]
+                   [:div
+                    (hiccup/raw (flexmark/md->html description))]
+                   [:div
+                    [:p (str "On: " date)]
+                    [:p (str "At: " time)]
+                    [:p (str "For: " duration "m")]]
+                   [:div
+                    [:p (str "Capacity: " capacity)]]
+                   [:a {:href (path req :activities.system/edit-activity {:id id})}
+                    [:button "EDIT"]]
+                   [:form {:method "POST"
+                           :action (path req :activities.system/activity {:id id})}
+                    [:input {:type "hidden" :name "_method" :value "delete"}]
+                    [:input {:type "submit" :value "Delete"}]]])))
 
 (defn get-activities [db]
   (map
@@ -203,7 +203,7 @@
 ;; GET /activities
 (defn list-activities [req]
   (let [activities (get-activities (crux/db (:crux req)))]
-    (response {:title "Activities"}
+    (response req {:title "Activities"}
               [:div
                (map (fn [{id :crux.db/id title :activity/title}]
                       [:article
@@ -256,65 +256,73 @@
                         str)
         duration    (time/as (:activity/duration activity) :minutes)
         capacity    (:activity/capacity activity)]
-    (response [:div
-               [:form
-                {:method "POST"
-                 :action (path req :activities.system/activity {:id id})}
-                [:div
-                 [:label {:for "title"} "Title: "]
-                 [:div
-                  [:input {:id "title"
-                           :name "title"
-                           :type "text"
-                           :value title}]]]
-                [:div
-                 [:label {:for "description"} "Description: "]
-                 [:div
-                  [:textarea {:id "description"
-                              :name "description"
-                              :type "msg"}
-                   :value description]]]
-                [:div
-                 [:label {:for "datetime"} "Date-time: "]
-                 [:div
-                  [:input {:id "datetime"
-                           :type "datetime-local"
-                           :name "datetime"
-                           :value datetime}]]]
-                [:div
-                 [:label {:for "duration"} "Duration: "]
-                 [:div
-                  [:input {:id "duration"
-                           :type "number"
-                           :name "duration"
-                           :value (str duration)}]]]
-                [:div
-                 [:label {:for "capacity"} "Capacity: "]
-                 [:div
-                  [:input {:id "capacity"
-                           :type "number"
-                           :name "capacity"
-                           :value (str capacity)}]]]
-                [:div
-                 [:div
-                  [:input {:type "submit"}]]]]])))
+    (response req [:div
+                   [:form
+                    {:method "POST"
+                     :action (path req :activities.system/activity {:id id})}
+                    [:div
+                     [:label {:for "title"} "Title: "]
+                     [:div
+                      [:input {:id "title"
+                               :name "title"
+                               :type "text"
+                               :value title}]]]
+                    [:div
+                     [:label {:for "description"} "Description: "]
+                     [:div
+                      [:textarea {:id "description"
+                                  :name "description"
+                                  :type "msg"}
+                       :value description]]]
+                    [:div
+                     [:label {:for "datetime"} "Date-time: "]
+                     [:div
+                      [:input {:id "datetime"
+                               :type "datetime-local"
+                               :name "datetime"
+                               :value datetime}]]]
+                    [:div
+                     [:label {:for "duration"} "Duration: "]
+                     [:div
+                      [:input {:id "duration"
+                               :type "number"
+                               :name "duration"
+                               :value (str duration)}]]]
+                    [:div
+                     [:label {:for "capacity"} "Capacity: "]
+                     [:div
+                      [:input {:id "capacity"
+                               :type "number"
+                               :name "capacity"
+                               :value (str capacity)}]]]
+                    [:div
+                     [:div
+                      [:input {:type "submit"}]]]]])))
 
 ;; DELETE /activity/:id
 (defn delete-activity [req]
-  (let [id   (get-in req [:path-params :id])
-        uuid (UUID/fromString id)
-        db   (:crux req)]
-    (crux/submit-tx db [[:crux.tx/delete uuid]])
-    (response [:div
-               [:p "Activity successfully deleted."]])))
+  (let [id       (get-in req [:path-params :id])
+        uuid     (UUID/fromString id)
+        node     (:crux req)
+        db       (crux/db node)
+        creator  (:activity/creator (crux/entity db uuid))
+        user-id  (user/req->id req)]
+    (if (and creator user-id (= creator user-id))
+      (do
+        (crux/submit-tx node [[:crux.tx/delete uuid]])
+        (response req [:div
+                       [:p "Activity successfully deleted."]]))
+      (response req {:status 403}
+                [:div
+                 [:p "Not allowed"]]))))
 
 ;; GET /login
 (defn login-form [req]
-  (response {:title "Login"} (views/login req)))
+  (response req {:title "Login"} (views/login req)))
 
-(defn get-user-id [db email]
-  (not-empty (crux/q (crux/db db) {:find '[uuid]
-                                   :where [['uuid ':user/email email]]})))
+(defn get-user-id [node email]
+  (not-empty (crux/q (crux/db node) {:find '[uuid]
+                                     :where [['uuid ':user/email email]]})))
 
 ;; POST /login
 (defn login-submission [req]
@@ -329,14 +337,14 @@
             (-> (redirect-to-activities req)
                 (assoc :session next-session)
                 (flash-message "Login successful, welcome back!")))
-          (response {:title "Login"}
+          (response req {:title "Login"}
                     (views/login req "Wrong password."))))
-      (response {:title "Login"}
+      (response req {:title "Login"}
                 (views/login req "Email not found. Please register")))))
 
 ;; GET /register
-(defn register-form [_]
-  (response (views/register)))
+(defn register-form [req]
+  (response req (views/register)))
 
 ;; POST /register
 (defn register-submission [req]
@@ -346,7 +354,7 @@
         [pwd1 pwd2] password
         db          (:crux req)]
     (if (get-user-id db email)
-      (response {:title "Register"}
+      (response req {:title "Register"}
                 (views/register name email "Email already registered."))
       (if (= pwd1 pwd2)
         (let [password-hash (buddy.hashers/derive pwd1)
@@ -360,7 +368,7 @@
           (-> (redirect-to-activities req)
               (assoc :session next-session)
               (flash-message "Registration successful. Welcome on board!")))
-        (response {:title "Register"}
+        (response req {:title "Register"}
                   (views/register name email "Passwords don't match"))))))
 
 ;; GET /logout
