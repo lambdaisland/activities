@@ -157,9 +157,11 @@
         date-time (time/local-date-time datetime)
         duration  (time/duration (time/minutes (Long/parseLong duration)))
         capacity  (Long/parseLong capacity)
+        creator   (user/req->id req)
         activity  {:crux.db/id           uuid
                    :activity/title       title
                    :activity/description description
+                   :activity/creator     creator
                    :activity/date-time   date-time
                    :activity/duration    duration
                    :activity/capacity    capacity}]
