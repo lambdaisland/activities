@@ -12,11 +12,14 @@
 (defn crux []
   (:crux integrant.repl.state/system))
 
+(defn db []
+  (crux/db (crux)))
+
 (defn q [query]
-  (crux/q
-   (crux/db
-    (:crux integrant.repl.state/system))
-   query))
+  (crux/q (db) query))
+
+(defn entity [id]
+  (crux/entity (db) id))
 
 (defn get-uuids []
   (q '{:find [uuid]
