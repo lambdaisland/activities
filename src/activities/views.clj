@@ -25,29 +25,31 @@
 ;;    [:ul
 ;;     [:li]]])
 
-(defn navbar []
+(defn navbar [username]
   [:nav.navbar
    [:h1.navbar-title "Activities"]
+   (when username
+     [:span "Logged in as " username])
    [:ul.navbar-menu
     [:li
      [:a {:href "/activities"} "Activities List"]]
     [:li
      [:a {:href "/activities/new"} "New Activity"]]
     [:li
-     [:a {:href "/activities/new"} "Login"]]
+     [:a {:href "/login"} "Login"]]
     [:li
-     [:a {:href "/activities/new"} "Signup"]]]])
+     [:a {:href "/register"} "Signup"]]]])
 
 (defn layout
   "Mounts a page template given a title and a hiccup body."
-  [title main]
+  [title username main]
   [:html
    [:head
     [:title title]
     [:meta {:name "viewport" :content "width=device-width"}]
     [:link {:rel "stylesheet" :href "/styles.css"}]]
    [:body
-    (navbar)
+    (navbar username)
     main]])
 
 (defn register [& [name email msg]]
