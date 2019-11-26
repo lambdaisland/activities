@@ -113,14 +113,14 @@
 ;;    :activity/participants #{#uuid "14fa320b-dcee-4ed5-a171-46ac148fdba1" #uuid "21e5c0ae-5b1c-4093-b908-05dcf38a79d8"}})
 ;; No reader function for tag object
 
-(s/def :crux.db/id uuid?)
+;; (s/def :crux.db/id uuid?)
 (s/def :activity/title string?)
 (s/def :activity/description string?)
 (s/def :activity/date-time (partial instance? java.time.LocalDateTime))
 (s/def :activity/duration (partial instance? java.time.Duration))
 (s/def :activity/capacity (partial instance? java.lang.Long))
 ;; (s/def ::creator uuid?)
-(s/def :activity/participants (s/coll-of ::uuid :kind set? :distinct true :min-count 0 :into #{}))
+(s/def :activity/participants (s/coll-of uuid? :kind set? :distinct true :min-count 0 :into #{}))
 
 (s/def :activities/activity (s/keys :req [:crux.db/id :activity/title :activity/date-time :activity/duration :activity/capacity]
                                     :opts [:activity/description :activity/participants]))
