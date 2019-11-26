@@ -135,7 +135,8 @@
 ;;    a 400 with a Spec explanation string."
 ;;  [{:keys [form-params crux]
 ;;    :as   request}
-;;   (let [activity (s/conform ::create-activity-form form-params)]
+;;   (let [activity (s/conform ::create-activity-form
+;;                             (select-keys form-params [,,,]))]
 ;;     (case params
 ;;       :clojure.spec/invalid {:status 400
 ;;                              :body (s/explain-str
