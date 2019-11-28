@@ -28,8 +28,8 @@
 
 (def routes
   [["/"
-    {:name       ::index
-     :get        #'handlers/redirect-to-activities}]
+    {:name ::index
+     :get  #'handlers/redirect-to-activities}]
    ["/activities" {:name ::activities}
     ["" {:get  #'handlers/list-activities
          :post #'handlers/create-activity}]
@@ -42,7 +42,10 @@
           :post   #'handlers/update-activity
           :delete #'handlers/delete-activity}]
      ["/edit" {:name ::edit-activity
-               :get  #'handlers/edit-activity}]]]
+               :get  #'handlers/edit-activity}]
+     ["/participate" {:name   ::participate
+                      :post   #'handlers/join-activity
+                      :delete #'handlers/leave-activity}]]]
    ["/login" {}
     ["" {:name ::login-form
          :get  #'handlers/login-form
@@ -53,7 +56,7 @@
          :post #'handlers/register-submission}]]
    ["/logout" {}
     ["" {:name ::logout
-         :get #'handlers/logout}]]])
+         :get  #'handlers/logout}]]])
 
 (defmethod integrant/init-key :router [_ config] ;; {}
   (reitit.ring/router routes))

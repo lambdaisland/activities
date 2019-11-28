@@ -1,8 +1,6 @@
 (ns activities.activity
   (:require [clojure.spec.alpha :as s]
-            [java-time :as time]
-            ))
-
+            [java-time :as time]))
 
 (s/def ::title string?)
 (s/def ::description string?)
