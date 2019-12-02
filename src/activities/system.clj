@@ -41,11 +41,13 @@
           :get    #'handlers/get-activity
           :post   #'handlers/update-activity
           :delete #'handlers/delete-activity}]
-     ["/edit" {:name ::edit-activity
-               :get  #'handlers/edit-activity}]
-     ["/participate" {:name   ::participate
-                      :post   #'handlers/join-activity
-                      :delete #'handlers/leave-activity}]]]
+     ["/edit" {}
+      ["" {:name ::edit-activity
+           :get  #'handlers/edit-activity}]]
+     ["/join" {}
+      ["" {:name   ::join
+           :post   #'handlers/join-activity
+           :delete #'handlers/leave-activity}]]]]
    ["/login" {}
     ["" {:name ::login-form
          :get  #'handlers/login-form
