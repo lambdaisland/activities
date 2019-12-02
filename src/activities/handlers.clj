@@ -10,6 +10,7 @@
             [activities.views :as views]
             [buddy.hashers]
             [clojure.spec.alpha :as s])
+            [activities.utils :refer [path]])
   (:import [java.util UUID]))
 
 #_
@@ -37,10 +38,6 @@
   {:status 200
    :headers {"Content-Type" "text/plain"}
    :body (with-out-str (clojure.pprint/pprint req))})
-
-(defn path [req route & [params]]
-  (let [router (:reitit.core/router req)]
-    (:path (reitit.core/match-by-name router route params))))
 
 ;; GET /
 (defn redirect-to-activities [req]
