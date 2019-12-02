@@ -86,6 +86,7 @@
 ;;                            (path request
 ;;                                  :activities.system/activity
 ;;                                  {:id (str (java.util.UUID/randomUUID))})}})))])
+  (response req {:title "New Activity"} (views/activity-form)))
 
 ;; POST /activity
 (defn create-activity
