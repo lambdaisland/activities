@@ -1,6 +1,7 @@
 (ns activities.activity
   (:require [clojure.spec.alpha :as s]
             [java-time :as time]))
+  (:import [java.util UUID]))
 
 (s/def ::title string?)
 (s/def ::description string?)
@@ -15,12 +16,20 @@
   (s/keys :req [:crux.db/id ::title ::date-time ::creator ::duration ::capacity]
           :opts [::description ::participants]))
 
-(defn params->activity [{:strs [title description datetime duration capacity]}]
-  (let [date-time (time/local-date-time datetime) ;; TODO use inst
-        duration  (Long/parseLong duration)
-        capacity  (Long/parseLong capacity)]
-    {::title       title
-     ::description description
-     ::date-time   date-time
-     ::duration    duration
-     ::capacity    capacity}))
+;; TODO fix namespaces?
+(defn req->new-activity
+  "Takes a request with form input for a new activity and returns a properly
+  namespaced activity map."
+  [{{:strs [title description datetime duration capacity]} :params
+    {:keys [identity]} :session}]
+  (let [new-uuid (UUID/randomUUID)
+        activity {:crux.db/id            new-uuid
+                  :activity/creator      identity
+                  :activity/title        title
+                  :activity/description  description
+                  :activity/date-time    datetime ;TODO parse into instant
+                  :activity/duration     duration ;TODO parse into long
+                  :activity/capacity     capacity ;TODO parse into long
+                  :activity/participants #{}}]
+    activity))                          ;TODO validate with spec
+
