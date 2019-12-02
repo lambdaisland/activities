@@ -1,6 +1,6 @@
 (ns activities.activity
   (:require [clojure.spec.alpha :as s]
-            [java-time :as time]))
+            [crux.api :as crux])
   (:import [java.util UUID]))
 
 (s/def ::title string?)
@@ -33,3 +33,12 @@
                   :activity/participants #{}}]
     activity))                          ;TODO validate with spec
 
+(defn req->activity
+  "Takes a request containing an activity id in the path and returns the
+  associated entity in the database."
+  [req]
+  (let [db       (crux/db (:crux req))
+        id       (get-in req [:path-params :id])
+        uuid     (UUID/fromString id)
+        activity (crux/entity db uuid)]
+    activity))                          ;TODO validate with spec
