@@ -381,4 +381,3 @@
 (defn logout [req]
   (-> (redirect-to-activities req)
       (assoc :session nil)))
-

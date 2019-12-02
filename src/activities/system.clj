@@ -14,6 +14,8 @@
             [buddy.auth.middleware :refer [wrap-authentication]]
             [buddy.auth.backends :as backends]))
 
+(require 'activities.time)
+
 (defmethod aero/reader 'ig/ref
   [_ _ value]
   (integrant/ref value))

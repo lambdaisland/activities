@@ -1,25 +1,32 @@
-(ns user
-  (:require [integrant.repl :as ig-repl]
-            [activities.system :as system]
-            [crux.api :as crux]))
+(ns user)
 
-(ig-repl/set-prep! system/read-config)
+(defmacro jit
+  "Just in time loading of dependencies."
+  [sym]
+  `(do
+     (requiring-resolve '~sym)))
 
-(def go ig-repl/go)
-(def halt ig-repl/halt)
-(def reset ig-repl/reset)
+(defn go []
+  ((jit integrant.repl/set-prep!) @(jit activities.system/read-config))
+  ((jit integrant.repl/go)))
+
+(defn halt []
+  ((jit integrant.repl/halt)))
+
+(defn reset []
+  ((jit integrant.repl/reset)))
 
 (defn crux []
-  (:crux integrant.repl.state/system))
+  (:crux @(jit integrant.repl.state/system)))
 
 (defn db []
-  (crux/db (crux)))
+  ((jit crux.api/db) (crux)))
 
 (defn q [query]
-  (crux/q (db) query))
+  ((jit crux.api/q) (db) query))
 
 (defn entity [id]
-  (crux/entity (db) id))
+  ((jit crux.api/entity) (db) id))
 
 (defn get-uuids []
   (q '{:find [uuid]
@@ -29,7 +36,7 @@
   (into [] (map (fn [[uuid]] [:crux.tx/delete uuid]) (get-uuids))))
 
 (defn clear-db []
-  (crux/submit-tx (crux) (mount-delete-ops)))
+  ((jit crux.api/submit-tx) (crux) (mount-delete-ops)))
 
 (def last-requests (atom []))
 (def last-responses (atom []))
@@ -40,4 +47,3 @@
     (let [res (handler req)]
       (swap! last-responses conj res)
       res)))
-
