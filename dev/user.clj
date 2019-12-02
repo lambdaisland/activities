@@ -25,6 +25,14 @@
   (q '{:find [uuid]
        :where [[uuid :crux.db/id]]}))
 
+(defn get-users-uuids []
+  (q '{:find [uuid]
+       :where [[uuid :user/email]]}))
+
+(defn get-activities-uuids []
+  (q '{:find [uuid]
+       :where [[uuid :activity/title]]}))
+
 (defn mount-delete-ops []
   (into [] (map (fn [[uuid]] [:crux.tx/delete uuid]) (get-uuids))))
 
@@ -40,4 +48,3 @@
     (let [res (handler req)]
       (swap! last-responses conj res)
       res)))
-
