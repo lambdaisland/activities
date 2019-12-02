@@ -273,3 +273,38 @@
   (-> (redirect-to-activities req)
       (assoc :session nil)))
 
+;; POST /activity/:id/join
+(defn join-activity
+  "Takes a request, adds the user in session to the list of participants in the
+  activity and redirects back to the activity page."
+  [req]
+  (let [node         (:crux req)
+        activity     (activity/req->activity req)
+        activity-id  (get activity :crux.db/id)
+        participants (get activity :activity/participants)
+        user-uuid    (user/req->uuid req)
+        new-activity (->> (conj participants user-uuid)
+                          (assoc activity :activity/participants))]
+    (crux/submit-tx node [[:crux.tx/put new-activity]])
+    {:status  303
+     :headers {"Location" (path req
+                                :activities.system/activity
+                                {:id activity-id})}}))
+
+;; DELETE /activity/:id/join
+(defn leave-activity
+  "Takes a request, removes the user in session from the list of participants in
+  the activity and redirects back to the activity page."
+  [req]
+  (let [node         (:crux req)
+        activity     (activity/req->activity req)
+        activity-id  (get activity :crux.db/id)
+        participants (get activity :activity/participants)
+        user-uuid    (user/req->uuid req)
+        new-activity (->> (conj participants user-uuid)
+                          (assoc activity :activity/participants))]
+    (crux/submit-tx node [[:crux.tx/put new-activity]])
+    {:status  303
+     :headers {"Location" (path req
+                                :activities.system/activity
+                                {:id activity-id})}}))
