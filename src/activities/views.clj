@@ -133,3 +133,39 @@
 ;;   [:main
 ;;    [:header [:h1 "List of activities"]]
 ;;    [:div activities]])
+
+(defn activity-form []
+  [:div
+   [:form {:method "POST" :action "/activities"}
+    [:header
+     [:h2 "New Activity Proposal"]]
+    [:div
+     [:label {:for "title"} "Title: "]
+     [:div
+      [:input {:id "title" :name "title" :type "text"}]]]
+    [:div
+     [:label {:for "desc"} "Description: "]
+     [:div
+      [:textarea {:id "desc" :name "description" :type "msg"}]]]
+    [:div
+     [:label {:for "datetime"} "Date-time: "]
+     [:div
+      [:input {:id "datetime"
+               :type "datetime-local"
+               :name "datetime"}]]]
+    [:div
+     [:label {:for "duration"} "And a duration (in minutes): "]
+     [:div
+      [:input {:id "duration"
+               :type "number"
+               :name "duration"}]]]
+    [:div
+     [:label {:for "capacity"} "Max. number of participants: "]
+     [:input {:id "capacity"
+              :type "number"
+              :name "capacity"
+              :min 1 :max 10}]]
+    [:div
+     [:div
+      [:input {:type "submit" :value "Submit Activity"}]]]]])
+
