@@ -114,31 +114,11 @@
 
 ;; GET /activity/:id
 (defn get-activity [req]
-  (let [id          (get-in req [:path-params :id])
-        db          (crux/db (:crux req))
-        activity    (crux/entity db id)
-        title       (:activity/title activity)
-        description (:activity/description activity)
-        date        (time/format "dd/MM/yyyy" (:activity/date-time activity))
-        time        (time/format "hh:mm" (:activity/date-time activity))
-        duration    (time/as (:activity/duration activity) :minutes)
-        capacity    (:activity/capacity activity)]
-    (response req [:div
-                   [:h1 title]
-                   [:div
-                    (hiccup/raw (flexmark/md->html description))]
-                   [:div
-                    [:p (str "On: " date)]
-                    [:p (str "At: " time)]
-                    [:p (str "For: " duration "m")]]
-                   [:div
-                    [:p (str "Capacity: " capacity)]]
-                   [:a {:href (path req :activities.system/edit-activity {:id id})}
-                    [:button "EDIT"]]
-                   [:form {:method "POST"
-                           :action (path req :activities.system/activity {:id id})}
-                    [:input {:type "hidden" :name "_method" :value "delete"}]
-                    [:input {:type "submit" :value "Delete"}]]])))
+  (let [activity (activity/retrieve req)]
+    (response req (views/activity-page req activity))))
+    ;; (if (s/valid? :activities/activity activity)
+    ;;   (response req (views/activity-page req activity))
+    ;;   {:status 404 :body (s/explain-str :activities/activity activity)})))
 
 (defn get-activities [db]
   (map
