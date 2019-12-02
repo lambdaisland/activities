@@ -5,6 +5,7 @@
             [crux.api :as crux]
             [activities.flexmark :as flexmark]
             [activities.user :as user]
+            [activities.activity :as activity]
             [java-time :as time]
             [activities.render :refer [flash-message]]
             [activities.views :as views]
@@ -67,50 +68,21 @@
 
 ;; GET /activity/new
 (defn new-activity-form [req]
-;; (defn create-activity
-;;   "Handler. Receives a request with form parameters to generate a new activity,
-;;    conforms the input and, if a valid activity, inserts the new activity in the
-;;    database and redirects the user to the new activity page. If invalid, returns
-;;    a 400 with a Spec explanation string."
-;;  [{:keys [form-params crux]
-;;    :as   request}
-;;   (let [activity (s/conform ::create-activity-form
-;;                             (select-keys form-params [,,,]))]
-;;     (case params
-;;       :clojure.spec/invalid {:status 400
-;;                              :body (s/explain-str
-;;                                     ::create-activity-form form-params)}
-;;       :else (do (crux/submit-tx crux [[:crux.tx/put activity]])
-;;                 {:status 303
-;;                  :headers {"Location"
-;;                            (path request
-;;                                  :activities.system/activity
-;;                                  {:id (str (java.util.UUID/randomUUID))})}})))])
   (response req {:title "New Activity"} (views/activity-form)))
 
 ;; POST /activity
-(defn create-activity
-  [{{:strs [title description datetime duration capacity]} :form-params
-    crux                                                   :crux
-    :as                                                    req}]
-  (let [uuid      (UUID/randomUUID)
-        date-time (time/local-date-time datetime)
-        duration  (time/duration (time/minutes (Long/parseLong duration)))
-        capacity  (Long/parseLong capacity)
-        creator   (user/req->id req)
-        activity  {:crux.db/id           uuid
-                   :activity/title       title
-                   :activity/description description
-                   :activity/creator     creator
-                   :activity/date-time   date-time
-                   :activity/duration    duration
-                   :activity/capacity    capacity}]
+(defn create-activity [req]
+  (let [node        (:crux req)
+        activity    (activity/req->new-activity req)
+        activity-id (str (:crux.db/id activity))
+        path        (path req :activities/activity {:id activity-id})]
     (if (s/valid? :activities/activity activity)
       ;; store activity in the database and assign it an id
-      (do (crux/submit-tx crux [[:crux.tx/put activity]])
+      (do (crux/submit-tx node [[:crux.tx/put activity]])
           ;; redirect to /activity/<id>
-          {:status 303 :headers {"Location" (path req :activities.system/activity {:id (str uuid)})}})
-      {:status 400 :body (s/explain-str :activities/activity activity)})))
+          {:status  303
+           :headers {"Location" path}})
+      {:status 404 :body (s/explain-str :activities/activity activity)})))
 
 ;; GET /activity/:id
 (defn get-activity [req]
