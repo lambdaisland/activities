@@ -3,14 +3,13 @@
             [clojure.pprint]
             [reitit.core]
             [crux.api :as crux]
-            [activities.flexmark :as flexmark]
             [activities.user :as user]
             [activities.activity :as activity]
             [java-time :as time]
             [activities.render :refer [flash-message]]
             [activities.views :as views]
             [buddy.hashers]
-            [clojure.spec.alpha :as s])
+            [clojure.spec.alpha :as s]
             [activities.utils :refer [path]])
   (:import [java.util UUID]))
 
