@@ -67,28 +67,6 @@
 
 ;; GET /activity/new
 (defn new-activity-form [req]
-;; (def test-activity
-;;   {:crux.db/id            #uuid "867f7291-ea56-4102-9053-8e52d2570504"
-;;    :activity/title        "bru"
-;;    :activity/description  "Curabitur lacinia pulvinar nibh."
-;;    :activity/date-time    #inst "2019-11-25T09:20:21.986435"
-;;    :activity/duration     0
-;;    :activity/capacity     0
-;;    :activity/creator      #uuid "ca21035b-d15f-4fc5-a132-def7da608953"
-;;    :activity/participants #{#uuid "14fa320b-dcee-4ed5-a171-46ac148fdba1" #uuid "21e5c0ae-5b1c-4093-b908-05dcf38a79d8"}})
-
-;; (s/def :crux.db/id uuid?)
-(s/def :activity/title string?)
-(s/def :activity/description string?)
-(s/def :activity/date-time any?)
-(s/def :activity/duration any?)
-(s/def :activity/capacity int?)
-;; (s/def ::creator uuid?)
-(s/def :activity/participants (s/coll-of uuid? :kind set? :distinct true :min-count 0 :into #{}))
-
-(s/def :activities/activity (s/keys :req [:crux.db/id :activity/title :activity/date-time :activity/duration :activity/capacity]
-                                    :opts [:activity/description :activity/participants]))
-
 ;; (defn create-activity
 ;;   "Handler. Receives a request with form parameters to generate a new activity,
 ;;    conforms the input and, if a valid activity, inserts the new activity in the
