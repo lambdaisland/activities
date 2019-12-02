@@ -1,4 +1,4 @@
 (ns activities.user)
 
-(defn req->id [req]
+(defn req->uuid [req]
   (get-in req [:session :identity]))

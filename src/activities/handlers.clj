@@ -54,7 +54,7 @@
           :or {status 200
                headers {"Content-Type" "text/html"}
                title "Activities"}} opts
-         user-id (user/req->id req)
+         user-id (user/req->uuid req)
          username (when user-id
                     (-> req :crux crux/db (crux/entity user-id) :user/name))]
      {:status status
@@ -309,7 +309,7 @@
         node     (:crux req)
         db       (crux/db node)
         creator  (:activity/creator (crux/entity db uuid))
-        user-id  (user/req->id req)]
+        user-id  (user/req->uuid req)]
     (if (and creator user-id (= creator user-id))
       (do
         (crux/submit-tx node [[:crux.tx/delete uuid]])
