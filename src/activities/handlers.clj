@@ -67,29 +67,50 @@
 
 ;; GET /activity/new
 (defn new-activity-form [req]
-  (response req {:title "New Activity"} (views/activity-form)))
+  (response req {:title "New Activity"} (views/activity-form req)))
 
 ;; POST /activity
 (defn create-activity [req]
   (let [node        (:crux req)
         activity    (activity/req->new-activity req)
-        activity-id (str (:crux.db/id activity))
-        path        (path req :activities/activity {:id activity-id})]
-    (if (s/valid? :activities/activity activity)
-      ;; store activity in the database and assign it an id
-      (do (crux/submit-tx node [[:crux.tx/put activity]])
-          ;; redirect to /activity/<id>
-          {:status  303
-           :headers {"Location" path}})
-      {:status 404 :body (s/explain-str :activities/activity activity)})))
+        activity-id (str (:crux.db/id activity))]
+    (crux/submit-tx node [[:crux.tx/put activity]])
+    {:status 303
+     :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
+
+    ;; (crux/submit-tx node [[:crux.tx/put activity]])
+    ;; {:status 303
+    ;;  :headers {"Location" (path req
+    ;;                             :activities.system/activity
+    ;;                             {:id activity-id})}}))
+
+        ;; path        (path req :activities.system/activity {:id activity-id})]
+    ;; (if (s/valid? :activities/activity activity)
+    ;;   ;; store activity in the database and assign it an id
+    ;;   (do (crux/submit-tx node [[:crux.tx/put activity]])
+    ;;       ;; redirect to /activity/<id>
+    ;;       {:status  303
+    ;;        :headers {"Location" (path req
+    ;;                                   :activities.system/activities
+    ;;                                   {:id activity-id})}})
+    ;;   {:status 404 :body (s/explain-str :activities/activity activity)})))
 
 ;; GET /activity/:id
 (defn get-activity [req]
-  (let [activity (activity/retrieve req)]
-    (response req (views/activity-page req activity))))
+  (response req (views/activity-page req)))
     ;; (if (s/valid? :activities/activity activity)
     ;;   (response req (views/activity-page req activity))
     ;;   {:status 404 :body (s/explain-str :activities/activity activity)})))
+
+;; ;; GET /activity/:id
+;; (defn get-activity [req]
+;;   (let [activity-id (get-in req [:path-params :id])]
+;;     {:status 303
+;;      :headers {"Location" (path req :activities/activity {:id activity-id})}}))
+;; ;; (response req (views/activity-page req activity))))
+;; ;; (if (s/valid? :activities/activity activity)
+;; ;;   (response req (views/activity-page req activity))
+;; ;;   {:status 404 :body (s/explain-str :activities/activity activity)})))
 
 (defn get-activities [db]
   (map
@@ -308,3 +329,8 @@
      :headers {"Location" (path req
                                 :activities.system/activity
                                 {:id activity-id})}}))
+
+;; (defn get-user [req]
+;;   (response req (views/user-page req)))
+
+(declare get-user)

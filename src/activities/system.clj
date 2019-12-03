@@ -48,6 +48,9 @@
       ["" {:name   ::join
            :post   #'handlers/join-activity
            :delete #'handlers/leave-activity}]]]]
+   ["/user" {}
+    ["" {:name ::user
+         :get #'handlers/get-user}]]
    ["/login" {}
     ["" {:name ::login-form
          :get  #'handlers/login-form

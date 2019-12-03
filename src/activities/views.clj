@@ -2,7 +2,9 @@
   (:require [hiccup2.core :as hiccup]
             [activities.flexmark :as flexmark]
             [java-time :as time]
-            [activities.utils :refer [path]]))
+            [activities.utils :refer [path]]
+            [activities.user :as user]
+            [crux.api :as crux]))
 
 (defn navbar [username]
   [:nav.navbar
@@ -113,11 +115,11 @@
 ;;    [:header [:h1 "List of activities"]]
 ;;    [:div activities]])
 
-(defn activity-form []
+(defn activity-form [req]
   [:div
    [:form {:method "POST" :action "/activities"}
     [:header
-     [:h2 "New Activity Proposal"]]
+     [:h2 "New Activity Proposal"]] 
     [:div
      [:label {:for "title"} "Title: "]
      [:div
@@ -149,8 +151,9 @@
       [:input {:type "submit" :value "Submit Activity"}]]]]])
 
 (defn activity-page
-  [req activity]
-  (let [activity-id  (str (get activity :crux.db/id))
+  [req]
+  (let [activity     (activities.activity/req->activity req)
+        activity-id  (get-in req [:path-params :id])
         title        (get activity :activity/title)
         description  (get activity :activity/description)
         date-time    (time/local-date-time (get activity :activity/date-time))
@@ -183,7 +186,7 @@
                  :action (path req
                                :activities.system/edit-activity
                                {:id activity-id})}
-          [:input {:type "hidden" :name "_method" :value "post"}]]]
+          [:input {:type "submit" :value "Edit"}]]]
         (if (contains? participants user-id)
           [:form {:method "POST"
                   :action (path req
@@ -192,7 +195,19 @@
            [:input {:type "hidden" :name "_method" :value "delete"}]
            [:input {:type "submit" :value "Leave"}]]
           [:form {:method "POST"
-                  :action (path req :activities.system/join
+                  :action (path req
+                                :activities.system/join-activity
                                 {:id activity-id})}
-           [:input {:type "hidden" :name "_method" :value "post"}]
            [:input {:type "submit" :value "Join"}]]))]]))
+
+;; (defn user-page [req]
+;;   (let [node (:crux req)
+;;         db (crux/db node)
+;;         u-uuid (user/req->uuid req)
+;;         user (crux/entity db u-uuid)
+;;         activities (user/uuid->activities u-uuid)])
+;;   [:div
+;;    [:h2 name]
+;;    [:p email]
+;;    [:ul
+;;     (map (fn [a-uuid]))]])
