@@ -10,4 +10,4 @@
   (-> (time/formatter "yyyy-MM-dd'T'HH:mm")
       (time/local-date-time datetime-local)
       (time/zoned-date-time (time/zone-id "UTC"))
-      (time/java-date)))
+      (time/instant)))

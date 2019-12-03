@@ -21,7 +21,7 @@
 (defn req->new-activity
   "Takes a request with form input for a new activity and returns a properly
   namespaced activity map."
-  [{{:strs [title description datetime duration capacity]} :params
+  [{{:keys [title description datetime duration capacity]} :params
     {:keys [identity]} :session}]
   (let [new-uuid (UUID/randomUUID)
         datetime (utils/datetime->inst datetime)
