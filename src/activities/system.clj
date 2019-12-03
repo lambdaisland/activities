@@ -45,7 +45,7 @@
       ["" {:name ::edit-activity
            :get  #'handlers/edit-activity}]]
      ["/join" {}
-      ["" {:name   ::join
+      ["" {:name   ::join-activity
            :post   #'handlers/join-activity
            :delete #'handlers/leave-activity}]]]]
    ["/user" {}

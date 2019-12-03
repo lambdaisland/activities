@@ -156,7 +156,7 @@
         activity-id  (get-in req [:path-params :id])
         title        (get activity :activity/title)
         description  (get activity :activity/description)
-        date-time    (time/local-date-time (get activity :activity/date-time))
+        date-time    (time/local-date-time (get activity :activity/date-time) (time/zone-id "UTC"))
         date         (time/format (time/local-date date-time))
         time         (time/format (time/local-time date-time))
         duration     (get activity :activity/duration)
@@ -190,7 +190,7 @@
         (if (contains? participants user-id)
           [:form {:method "POST"
                   :action (path req
-                                :activities.system/leave-activity
+                                :activities.system/join-activity
                                 {:id activity-id})}
            [:input {:type "hidden" :name "_method" :value "delete"}]
            [:input {:type "submit" :value "Leave"}]]
@@ -199,6 +199,7 @@
                                 :activities.system/join-activity
                                 {:id activity-id})}
            [:input {:type "submit" :value "Join"}]]))]]))
+
 
 ;; (defn user-page [req]
 ;;   (let [node (:crux req)
