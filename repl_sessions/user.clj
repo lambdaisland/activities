@@ -11,7 +11,7 @@
 
 create-activity
 
-(activities.user/req->id (last @user/last-requests))
+(activities.user/req->uuid (last @user/last-requests))
 
 (user/entity #uuid "4415f920-5f5b-4277-87e7-da0cb9ac221d")
 (user/entity #uuid "abf230e5-2af2-4c44-8490-1864857d0b69")

@@ -1,29 +1,10 @@
-(ns activities.views)
-
-;; (def router (:router integrant.repl.state/system))
-
-;; (defn make-nav [router route & [args]]
-;;   (let [routes (reitit.core/route-names router)]
-;;     (for [r routes]
-;;       (if (= r route)
-;;         [:li [:a.current title]]
-;;         [:li [:a {:href (path-to-route)}]]))))
-
-;; (map (fn [] [:li
-;;             (if (= a current)))
-
-
-;; (defn common [title]
-;;   [:header
-;;    [:h1 title]
-;;    [:nav]])
-
-;; ;; TODO nav: ask for help
-;; (defn main-nav [route-name]
-;;   (for [route (r/route-names (:router (:reitit.core/router)))])
-;;   [:nav
-;;    [:ul
-;;     [:li]]])
+(ns activities.views
+  (:require [hiccup2.core :as hiccup]
+            [activities.flexmark :as flexmark]
+            [java-time :as time]
+            [activities.utils :refer [path]]
+            [activities.user :as user]
+            [crux.api :as crux]))
 
 (defn navbar [username]
   [:nav.navbar
@@ -133,3 +114,101 @@
 ;;   [:main
 ;;    [:header [:h1 "List of activities"]]
 ;;    [:div activities]])
+
+(defn activity-form [req]
+  [:div
+   [:form {:method "POST" :action "/activities"}
+    [:header
+     [:h2 "New Activity Proposal"]] 
+    [:div
+     [:label {:for "title"} "Title: "]
+     [:div
+      [:input {:id "title" :name "title" :type "text"}]]]
+    [:div
+     [:label {:for "desc"} "Description: "]
+     [:div
+      [:textarea {:id "desc" :name "description" :type "msg"}]]]
+    [:div
+     [:label {:for "datetime"} "Date-time: "]
+     [:div
+      [:input {:id "datetime"
+               :type "datetime-local"
+               :name "datetime"}]]]
+    [:div
+     [:label {:for "duration"} "And a duration (in minutes): "]
+     [:div
+      [:input {:id "duration"
+               :type "number"
+               :name "duration"}]]]
+    [:div
+     [:label {:for "capacity"} "Max. number of participants: "]
+     [:input {:id "capacity"
+              :type "number"
+              :name "capacity"
+              :min 1 :max 10}]]
+    [:div
+     [:div
+      [:input {:type "submit" :value "Submit Activity"}]]]]])
+
+(defn activity-page
+  [req]
+  (let [activity     (activities.activity/req->activity req)
+        activity-id  (get-in req [:path-params :id])
+        title        (get activity :activity/title)
+        description  (get activity :activity/description)
+        date-time    (time/local-date-time (get activity :activity/date-time) (time/zone-id "UTC"))
+        date         (time/format (time/local-date date-time))
+        time         (time/format (time/local-time date-time))
+        duration     (get activity :activity/duration)
+        capacity     (get activity :activity/capacity)
+        participants (get activity :activity/participants)
+        creator      (get activity :activity/creator)
+        user-id      (:identity (:session req))]
+    [:div
+     [:h1 title]
+     [:div
+      (hiccup/raw (flexmark/md->html description))]
+     [:div
+      [:p (str "On: " date)]
+      [:p (str "At: " time)]
+      [:p (str "For: " duration "m")]
+      [:p (str "Participants: " (count participants) "/" capacity)]]
+     [:div
+      (if (= creator user-id)
+        [:div
+         [:form {:method "POST"
+                 :action (path req
+                               :activities.system/delete-activity
+                               {:id activity-id})}
+          [:input {:type "hidden" :name "_method" :value "delete"}]
+          [:input {:type "submit" :value "Delete"}]]
+         [:form {:method "POST"
+                 :action (path req
+                               :activities.system/edit-activity
+                               {:id activity-id})}
+          [:input {:type "submit" :value "Edit"}]]]
+        (if (contains? participants user-id)
+          [:form {:method "POST"
+                  :action (path req
+                                :activities.system/join-activity
+                                {:id activity-id})}
+           [:input {:type "hidden" :name "_method" :value "delete"}]
+           [:input {:type "submit" :value "Leave"}]]
+          [:form {:method "POST"
+                  :action (path req
+                                :activities.system/join-activity
+                                {:id activity-id})}
+           [:input {:type "submit" :value "Join"}]]))]]))
+
+
+;; (defn user-page [req]
+;;   (let [node (:crux req)
+;;         db (crux/db node)
+;;         u-uuid (user/req->uuid req)
+;;         user (crux/entity db u-uuid)
+;;         activities (user/uuid->activities u-uuid)])
+;;   [:div
+;;    [:h2 name]
+;;    [:p email]
+;;    [:ul
+;;     (map (fn [a-uuid]))]])
