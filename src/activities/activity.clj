@@ -1,6 +1,7 @@
 (ns activities.activity
   (:require [clojure.spec.alpha :as s]
-            [crux.api :as crux])
+            [crux.api :as crux]
+            [activities.utils :as utils])
   (:import [java.util UUID]))
 
 (s/def ::title string?)
@@ -23,13 +24,16 @@
   [{{:strs [title description datetime duration capacity]} :params
     {:keys [identity]} :session}]
   (let [new-uuid (UUID/randomUUID)
+        datetime (utils/datetime->inst datetime)
+        duration (Long/parseLong duration)
+        capacity (Long/parseLong capacity)
         activity {:crux.db/id            new-uuid
                   :activity/creator      identity
                   :activity/title        title
                   :activity/description  description
-                  :activity/date-time    datetime ;TODO parse into instant
-                  :activity/duration     duration ;TODO parse into long
-                  :activity/capacity     capacity ;TODO parse into long
+                  :activity/date-time    datetime
+                  :activity/duration     duration
+                  :activity/capacity     capacity
                   :activity/participants #{}}]
     activity))                          ;TODO validate with spec
 
