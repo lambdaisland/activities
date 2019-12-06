@@ -322,7 +322,7 @@
         activity-id  (get activity :crux.db/id)
         participants (get activity :activity/participants)
         user-uuid    (user/req->uuid req)
-        new-activity (->> (conj participants user-uuid)
+        new-activity (->> (disj participants user-uuid)
                           (assoc activity :activity/participants))]
     (crux/submit-tx node [[:crux.tx/put new-activity]])
     {:status  303
