@@ -75,7 +75,7 @@
         activity    (activity/req->new-activity req)
         activity-id (str (:crux.db/id activity))]
     (crux/submit-tx node [[:crux.tx/put activity]])
-    {:status 303
+    {:status 308
      :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
 
     ;; (crux/submit-tx node [[:crux.tx/put activity]])
