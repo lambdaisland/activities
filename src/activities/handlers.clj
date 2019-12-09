@@ -45,7 +45,12 @@
 
 ;; GET /activity/new
 (defn new-activity-form [req]
-  (response req {:title "New Activity"} (views/activity-form req)))
+  (let [user-uuid (user/req->uuid req)
+        db (crux/db (:crux req))]
+    (if (crux/entity db user-uuid)
+      (response req {:title "New Activity"} (views/activity-form req))
+      {:status 302
+       :headers {"Location" (path req :activities.system/login-form)}})))
 
 ;; POST /activity
 (defn create-activity [req]
