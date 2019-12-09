@@ -61,7 +61,7 @@
       :headers (if (contains? headers "Content-Type")
                  headers
                  (assoc headers "Content-Type" "text/html"))
-      :body (-> (views/layout title username body)
+      :body (-> (views/layout req title username body)
                 hiccup/html
                 str)})))
 
