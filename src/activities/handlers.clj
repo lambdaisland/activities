@@ -9,30 +9,8 @@
             [activities.render :refer [flash-message]]
             [activities.views :as views]
             [buddy.hashers]
-            [clojure.spec.alpha :as s]
             [activities.utils :refer [path]])
   (:import [java.util UUID]))
-
-#_
-(crux/submit-tx (user/crux)
-                [[:crux.tx/put
-                  {:crux.db/id #uuid "f190baa5-5c9d-4506-b7bc-901ef175dcf0"
-                   :activity/title "Activity 01"
-                   :activity/description "Description 01"
-                   :activity/date-time (time/local-date-time "2019-11-11T09:00")
-                   :activity/duration (time/duration (time/minutes 30))
-                   :activity/capacity 8
-                   :activity/creator nil
-                   :activity/participants #{}}]
-                 [:crux.tx/put
-                  {:crux.db/id #uuid "9d70e4e9-4863-4457-8523-79d3f14c8454"
-                   :activity/title "Activity 02"
-                   :activity/description "Description 02"
-                   :activity/date-time (time/local-date-time "2019-12-25T21:00")
-                   :activity/duration (time/duration (time/minutes 120))
-                   :activity/capacity 7
-                   :activity/creator nil
-                   :activity/participants #{}}]])
 
 (defn debug-request [req]
   {:status 200
@@ -78,39 +56,9 @@
     {:status 308
      :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
 
-    ;; (crux/submit-tx node [[:crux.tx/put activity]])
-    ;; {:status 303
-    ;;  :headers {"Location" (path req
-    ;;                             :activities.system/activity
-    ;;                             {:id activity-id})}}))
-
-        ;; path        (path req :activities.system/activity {:id activity-id})]
-    ;; (if (s/valid? :activities/activity activity)
-    ;;   ;; store activity in the database and assign it an id
-    ;;   (do (crux/submit-tx node [[:crux.tx/put activity]])
-    ;;       ;; redirect to /activity/<id>
-    ;;       {:status  303
-    ;;        :headers {"Location" (path req
-    ;;                                   :activities.system/activities
-    ;;                                   {:id activity-id})}})
-    ;;   {:status 404 :body (s/explain-str :activities/activity activity)})))
-
 ;; GET /activity/:id
 (defn get-activity [req]
   (response req (views/activity-page req)))
-    ;; (if (s/valid? :activities/activity activity)
-    ;;   (response req (views/activity-page req activity))
-    ;;   {:status 404 :body (s/explain-str :activities/activity activity)})))
-
-;; ;; GET /activity/:id
-;; (defn get-activity [req]
-;;   (let [activity-id (get-in req [:path-params :id])]
-;;     {:status 303
-;;      :headers {"Location" (path req :activities/activity {:id activity-id})}}))
-;; ;; (response req (views/activity-page req activity))))
-;; ;; (if (s/valid? :activities/activity activity)
-;; ;;   (response req (views/activity-page req activity))
-;; ;;   {:status 404 :body (s/explain-str :activities/activity activity)})))
 
 (defn get-activities [db]
   (map
