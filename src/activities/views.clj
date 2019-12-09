@@ -2,7 +2,7 @@
   (:require [hiccup2.core :as hiccup]
             [activities.flexmark :as flexmark]
             [java-time :as time]
-            [activities.utils :refer [path]]
+            [activities.utils :refer [path] :as utils]
             [activities.user :as user]
             [crux.api :as crux]))
 
@@ -117,9 +117,9 @@
 
 (defn activity-form [req]
   [:div
-   [:form {:method "POST" :action "/activities"}
+   [:form {:method "POST" :action (path req :activities.system/activities)}
     [:header
-     [:h2 "New Activity Proposal"]] 
+     [:h2 "New Activity Proposal"]]
     [:div
      [:label {:for "title"} "Title: "]
      [:div
