@@ -24,18 +24,17 @@
   [{{:keys [title description datetime duration capacity]} :params
     {:keys [identity]} :session}]
   (let [new-uuid (UUID/randomUUID)
-        datetime (utils/datetime->inst datetime)
+        inst     (utils/datetime->inst datetime)
         duration (Long/parseLong duration)
-        capacity (Long/parseLong capacity)
-        activity {:crux.db/id            new-uuid
-                  :activity/creator      identity
-                  :activity/title        title
-                  :activity/description  description
-                  :activity/date-time    datetime
-                  :activity/duration     duration
-                  :activity/capacity     capacity
-                  :activity/participants #{}}]
-    activity))                          ;TODO validate with spec
+        capacity (Long/parseLong capacity)]
+    {:crux.db/id            new-uuid
+     :activity/creator      identity
+     :activity/title        title
+     :activity/description  description
+     :activity/date-time    inst
+     :activity/duration     duration
+     :activity/capacity     capacity
+     :activity/participants #{}}))
 
 (defn req->activity
   "Takes a request containing an activity id in the path and returns the

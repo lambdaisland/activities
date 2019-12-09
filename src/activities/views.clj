@@ -164,7 +164,7 @@
         capacity     (get activity :activity/capacity)
         participants (get activity :activity/participants)
         creator      (get activity :activity/creator)
-        user-id      (:identity (:session req))]
+        user-uuid    (user/req->uuid req)]
     [:div
      [:h1 title]
      [:div
@@ -175,7 +175,7 @@
       [:p (str "For: " duration "m")]
       [:p (str "Participants: " (count participants) "/" capacity)]]
      [:div
-      (if (= creator user-id)
+      (if (= creator user-uuid)
         [:div
          [:form {:method "POST"
                  :action (path req
@@ -188,7 +188,7 @@
                                :activities.system/edit-activity
                                {:id activity-id})}
           [:input {:type "submit" :value "Edit"}]]]
-        (if (contains? participants user-id)
+        (if (contains? participants user-uuid)
           [:form {:method "POST"
                   :action (path req
                                 :activities.system/join-activity
