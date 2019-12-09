@@ -153,7 +153,7 @@
 (defn activity-page
   [req]
   (let [activity     (activities.activity/req->activity req)
-        activity-id  (get-in req [:path-params :id])
+        activity-id  (str (get activity :crux.db/id))
         title        (get activity :activity/title)
         description  (get activity :activity/description)
         date-time    (time/local-date-time (get activity :activity/date-time) (time/zone-id "UTC"))
