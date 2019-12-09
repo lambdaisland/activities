@@ -4,7 +4,8 @@
             [java-time :as time]
             [activities.utils :refer [path] :as utils]
             [activities.user :as user]
-            [crux.api :as crux]))
+            [crux.api :as crux]
+            [activities.activity :as activity]))
 
 (defn navbar [username]
   [:nav.navbar
@@ -152,7 +153,7 @@
 
 (defn activity-page
   [req]
-  (let [activity     (activities.activity/req->activity req)
+  (let [activity     (activity/req->activity req)
         activity-id  (str (get activity :crux.db/id))
         title        (get activity :activity/title)
         description  (get activity :activity/description)
