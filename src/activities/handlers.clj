@@ -9,7 +9,7 @@
             [activities.render :refer [flash-message]]
             [activities.views :as views]
             [buddy.hashers]
-            [activities.utils :refer [path]])
+            [activities.utils :refer [path] :as utils])
   (:import [java.util UUID]))
 
 (defn debug-request [req]
@@ -109,59 +109,7 @@
 (defn edit-activity
   "Returns a page with a form to edit an existing activity."
   [req]
-  (let [id          (get-in req [:path-params :id])
-        db          (crux/db (:crux req))
-        activity    (crux/entity db id)
-        title       (:activity/title activity)
-        description (:activity/description activity)
-        datetime    (-> activity
-                        :activity/date-time
-                        (time/truncate-to :minutes)
-                        str)
-        duration    (time/as (:activity/duration activity) :minutes)
-        capacity    (:activity/capacity activity)]
-    (response req [:div
-                   [:form
-                    {:method "POST"
-                     :action (path req :activities.system/activity {:id id})}
-                    [:div
-                     [:label {:for "title"} "Title: "]
-                     [:div
-                      [:input {:id "title"
-                               :name "title"
-                               :type "text"
-                               :value title}]]]
-                    [:div
-                     [:label {:for "description"} "Description: "]
-                     [:div
-                      [:textarea {:id "description"
-                                  :name "description"
-                                  :type "msg"}
-                       :value description]]]
-                    [:div
-                     [:label {:for "datetime"} "Date-time: "]
-                     [:div
-                      [:input {:id "datetime"
-                               :type "datetime-local"
-                               :name "datetime"
-                               :value datetime}]]]
-                    [:div
-                     [:label {:for "duration"} "Duration: "]
-                     [:div
-                      [:input {:id "duration"
-                               :type "number"
-                               :name "duration"
-                               :value (str duration)}]]]
-                    [:div
-                     [:label {:for "capacity"} "Capacity: "]
-                     [:div
-                      [:input {:id "capacity"
-                               :type "number"
-                               :name "capacity"
-                               :value (str capacity)}]]]
-                    [:div
-                     [:div
-                      [:input {:type "submit"}]]]]])))
+  (response req (views/edit-activity-form req)))
 
 ;; DELETE /activity/:id
 (defn delete-activity [req]
