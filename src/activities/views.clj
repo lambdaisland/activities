@@ -183,7 +183,7 @@
                                {:id activity-id})}
           [:input {:type "hidden" :name "_method" :value "delete"}]
           [:input {:type "submit" :value "Delete"}]]
-         [:form {:method "POST"
+         [:form {:method "GET"
                  :action (path req
                                :activities.system/edit-activity
                                {:id activity-id})}
