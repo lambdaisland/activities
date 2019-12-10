@@ -213,3 +213,59 @@
 ;;    [:p email]
 ;;    [:ul
 ;;     (map (fn [a-uuid]))]])
+
+(defn edit-activity-form
+  [req]
+  (let [activity    (activity/req->activity req)
+        activity-id (:crux.db/id activity)
+        title       (:activity/title activity)
+        description (:activity/description activity)
+        inst        (:activity/date-time activity)
+        datetime    (-> inst
+                        (time/local-date-time (time/zone-id "UTC"))
+                        (time/truncate-to :minutes)
+                        (time/format))
+        duration    (:activity/duration activity)
+        capacity    (:activity/capacity activity)]
+    [:div
+     [:form
+      {:method "POST"
+       :action (path req :activities.system/activity {:id activity-id})}
+      [:div
+       [:label {:for "title"} "Title: "]
+       [:div
+        [:input {:id    "title"
+                 :name  "title"
+                 :type  "text"
+                 :value title}]]]
+      [:div
+       [:label {:for "description"} "Description: "]
+       [:div
+        [:textarea {:id   "description"
+                    :name "description"
+                    :type "msg"
+                    :value description}]]]
+      [:div
+       [:label {:for "datetime"} "Date-time: "]
+       [:div
+        [:input {:id    "datetime"
+                 :type  "datetime-local"
+                 :name  "datetime"
+                 :value datetime}]]]
+      [:div
+       [:label {:for "duration"} "Duration: "]
+       [:div
+        [:input {:id    "duration"
+                 :type  "number"
+                 :name  "duration"
+                 :value (str duration)}]]]
+      [:div
+       [:label {:for "capacity"} "Capacity: "]
+       [:div
+        [:input {:id    "capacity"
+                 :type  "number"
+                 :name  "capacity"
+                 :value (str capacity)}]]]
+      [:div
+       [:div
+        [:input {:type "submit"}]]]]]))
