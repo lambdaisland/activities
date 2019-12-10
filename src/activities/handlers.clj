@@ -86,31 +86,24 @@
 
 ;; POST /activity/:id
 (defn update-activity [req]
-  (let [id              (get-in req [:path-params :id])
-        uuid            (UUID/fromString id)
-        new-title       (get-in req [:params :title])
-        new-description (get-in req [:params :description])
-        new-date        (-> req
-                            (get-in [:params :datetime])
-                            time/local-date-time)
-        new-duration    (-> req
-                            (get-in [:params :duration])
-                            Long/parseLong
-                            time/minutes
-                            time/duration)
-        new-capacity    (-> req
-                            (get-in [:params :capacity])
-                            Long/parseLong)
-        db              (:crux req)]
-    (crux/submit-tx db [[:crux.tx/put
-                         {:crux.db/id           uuid
-                          :activity/title       new-title
-                          :activity/description new-description
-                          :activity/date-time   new-date
-                          :activity/duration    new-duration
-                          :activity/capacity    new-capacity}]])
-    {:status  303
-     :headers {"Location" (path req :activities.system/activity {:id id})}}))
+  (let [node              (:crux req)
+        current-activity  (activity/req->activity req)
+        activity-uuid     (:crux.db/id current-activity)
+        activity-id       (str activity-uuid)
+        new-title         (get-in req [:params :title])
+        new-description   (get-in req [:params :description])
+        new-datetime      (utils/datetime->inst (get-in req [:params :datetime]))
+        new-duration      (Long/parseLong (get-in req [:params :duration]))
+        new-capacity      (Long/parseLong (get-in req [:params :capacity]))
+        modified-keys-map {:activity/title       new-title
+                           :activity/description new-description
+                           :activity/date-time   new-datetime
+                           :activity/duration    new-duration
+                           :activity/capacity    new-capacity}
+        updated-activity  (merge current-activity modified-keys-map)]
+    (crux/submit-tx node [[:crux.tx/put updated-activity]])
+    {:status  301
+     :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
 
 ;; GET /activity/:id/edit
 (defn edit-activity
