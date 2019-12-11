@@ -45,3 +45,11 @@
         uuid     (UUID/fromString id)
         activity (crux/entity db uuid)]
     activity))                          ;TODO validate with spec
+
+(defn req->activities
+  [req]
+  (let [db (crux/db (:crux req))]
+    (mapv
+     #(crux/entity db (first %))
+     (crux/q db '{:find [id]
+                  :where [[id :activity/title]]}))))

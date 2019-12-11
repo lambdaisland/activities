@@ -1,6 +1,7 @@
 :root {
     box-sizing: border-box;
     font-family: sans-serif;
+    color: darkslategrey;
 }
 
 html {
@@ -46,18 +47,18 @@ body {
     color: hsla();
 }
 
-main {
+.sign {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-.title {
+.sign-title {
     color: darkslategrey;
 }
 
-.title-heading {
+.sign-title-heading {
     font-size: 4rem;
     text-align: center;
 }
@@ -117,4 +118,59 @@ main {
     width: 100%;
     color: snow;
     font-size: x-large;
+}
+
+.activities {
+    display: grid;
+    grid-gap: 1rem;
+    padding: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 2px 5px 3px gainsboro;
+    border: 1px solid gainsboro;
+    background-color: snow;
+}
+
+.card-header {
+    padding: .5rem;
+}
+
+.card-header--title {
+    line-height: 1.5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+
+}
+.card-description {
+    line-height: 1.35;
+    padding-left: .5rem;
+    padding-right: .5rem;
+    margin-top: 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: .5rem;
+}
+
+.card--button {
+    justify-self: flex-end;
+    border: none;
+    align-self: stretch;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+    font-weight: bold;
+    font-size: 1.125rem;
+}
+
+.card--button-link {
+    text-decoration: none;
+    color: #333;
 }
