@@ -12,6 +12,11 @@
             [activities.utils :refer [path] :as utils])
   (:import [java.util UUID]))
 
+(defn submit-tx [crux tx-ops]
+  (let [tx-time (:crux.tx/tx-time (crux/submit-tx crux tx-ops))]
+    (crux/sync crux tx-time (time/duration 1000))
+    nil))
+
 (defn debug-request [req]
   {:status 200
    :headers {"Content-Type" "text/plain"}
@@ -57,7 +62,7 @@
   (let [node        (:crux req)
         activity    (activity/req->new-activity req)
         activity-id (str (:crux.db/id activity))]
-    (crux/submit-tx node [[:crux.tx/put activity]])
+    (submit-tx node [[:crux.tx/put activity]])
     {:status 303
      :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
 
@@ -88,7 +93,7 @@
                            :activity/duration    new-duration
                            :activity/capacity    new-capacity}
         updated-activity  (merge current-activity modified-keys-map)]
-    (crux/submit-tx node [[:crux.tx/put updated-activity]])
+    (submit-tx node [[:crux.tx/put updated-activity]])
     {:status  301
      :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
 
@@ -108,7 +113,7 @@
         user-id  (user/req->uuid req)]
     (if (and creator user-id (= creator user-id))
       (do
-        (crux/submit-tx node [[:crux.tx/delete uuid]])
+        (submit-tx node [[:crux.tx/delete uuid]])
         (response req [:div
                        [:p "Activity successfully deleted."]]))
       (response req {:status 403}
@@ -159,7 +164,7 @@
         (let [password-hash (buddy.hashers/derive pwd1)
               uuid          (java.util.UUID/randomUUID)
               next-session  (assoc (:session req) :identity uuid)]
-          (crux/submit-tx db [[:crux.tx/put
+          (submit-tx db [[:crux.tx/put
                                {:crux.db/id    uuid
                                 :user/name     name
                                 :user/email    email
@@ -187,7 +192,7 @@
         user-uuid    (user/req->uuid req)
         new-activity (->> (conj participants user-uuid)
                           (assoc activity :activity/participants))]
-    (crux/submit-tx node [[:crux.tx/put new-activity]])
+    (submit-tx node [[:crux.tx/put new-activity]])
     {:status  303
      :headers {"Location" (path req
                                 :activities.system/activity
@@ -205,7 +210,7 @@
         user-uuid    (user/req->uuid req)
         new-activity (->> (disj participants user-uuid)
                           (assoc activity :activity/participants))]
-    (crux/submit-tx node [[:crux.tx/put new-activity]])
+    (submit-tx node [[:crux.tx/put new-activity]])
     {:status  303
      :headers {"Location" (path req
                                 :activities.system/activity
