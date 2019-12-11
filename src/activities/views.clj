@@ -5,7 +5,8 @@
             [activities.utils :refer [path] :as utils]
             [activities.user :as user]
             [crux.api :as crux]
-            [activities.activity :as activity]))
+            [activities.activity :as activity]
+            [clojure.string]))
 
 (defn navbar [req username]
   [:nav.navbar
@@ -269,3 +270,29 @@
       [:div
        [:div
         [:input {:type "submit"}]]]]]))
+
+(defn- activity-card [activity]
+  (let [title       (:activity/title activity)
+        description (:activity/description activity)
+        inst        (:activity/date-time activity)
+        date-time   (time/local-date-time inst (time/zone-id "UTC"))
+        time        (time/format (time/local-time date-time))
+        capacity    (:activity/capacity activity)
+        user-count  (count (:activity/participants activity))]
+    [:article.card
+     [:div.card-main
+      [:header.card-header
+       [:h2.card-header--title title]
+       [:small.card-header--tags
+        (clojure.string/join " " (map #(str "#" %) ["tags" "test"]))]]
+      [:p.card-description description]]
+     [:footer.card-footer
+      [:small.card-footer--time time]
+      [:small.card-footer--capacity (str user-count "/" capacity)]]
+     [:button.card--button "More"]]))
+
+(defn activities
+  [req]
+  (let [activities (activity/req->activities req)]
+    [:main.activities
+     (map activity-card activities)]))

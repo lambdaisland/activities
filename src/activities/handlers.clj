@@ -68,16 +68,8 @@
 
 ;; GET /activities
 (defn list-activities [req]
-  (let [activities (get-activities (crux/db (:crux req)))]
-    (response req {:title "Activities"}
-              [:div
-               (map (fn [{id :crux.db/id title :activity/title}]
-                      [:article
-                       [:h1
-                        [:a
-                         {:href (path req :activities.system/activity {:id id})}
-                         title]]])
-                    activities)])))
+  (let [view (views/activities req)]
+    (response req {:title "All Activities"} view)))
 
 ;; POST /activity/:id
 (defn update-activity [req]
