@@ -169,12 +169,3 @@ body {
     font-weight: bold;
     font-size: 1.125rem;
 }
-
-div button {
-    border: none;
-    align-self: stretch;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
-    font-weight: bold;
-    font-size: 1.125rem;
-}
