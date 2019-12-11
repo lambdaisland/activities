@@ -271,14 +271,16 @@
        [:div
         [:input {:type "submit"}]]]]]))
 
-(defn- activity-card [activity]
+(defn- activity-card [activity req]
   (let [title       (:activity/title activity)
         description (:activity/description activity)
         inst        (:activity/date-time activity)
         date-time   (time/local-date-time inst (time/zone-id "UTC"))
         time        (time/format (time/local-time date-time))
         capacity    (:activity/capacity activity)
-        user-count  (count (:activity/participants activity))]
+        user-count  (count (:activity/participants activity))
+        activity-id (str (:crux.db/id activity))
+        path        (path req :activities.system/activity {:id activity-id})]
     [:article.card
      [:div.card-main
       [:header.card-header
@@ -289,10 +291,11 @@
      [:footer.card-footer
       [:small.card-footer--time time]
       [:small.card-footer--capacity (str user-count "/" capacity)]]
-     [:button.card--button "More"]]))
+     [:button.card--button
+      [:a.card--button-link {:href path} "More"]]]))
 
 (defn activities
   [req]
   (let [activities (activity/req->activities req)]
     [:main.activities
-     (map activity-card activities)]))
+     (map #(activity-card % req) activities)]))
