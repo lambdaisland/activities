@@ -36,8 +36,8 @@
 
 (defn register [& [name email msg]]
   (let [error-msg [:div [:small.auth-error msg]]]
-    [:main
-     [:header.title [:h1.title-heading "Activities"]]
+    [:main.sign
+     [:header.sign-title [:h1.sign-title-heading "Activities"]]
      [:div.auth
       [:form {:method "POST" :action "/register"}
        [:header.auth-title
@@ -82,8 +82,8 @@
 
 (defn login [req & [msg]]
   (let [error-msg [:div [:small.auth-error msg]]]
-    [:main
-     [:header.title [:h1.title-heading "Activities"]]
+    [:main.sign
+     [:header.sign-title [:h1.sign-title-heading "Activities"]]
      [:div.auth
       [:form {:method "POST" :action "/login"}
        [:header.auth-title

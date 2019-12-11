@@ -46,18 +46,18 @@ body {
     color: hsla();
 }
 
-main {
+.sign {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-.title {
+.sign-title {
     color: darkslategrey;
 }
 
-.title-heading {
+.sign-title-heading {
     font-size: 4rem;
     text-align: center;
 }
