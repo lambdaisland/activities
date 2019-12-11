@@ -65,11 +65,6 @@
 (defn get-activity [req]
   (response req (views/activity-page req)))
 
-(defn get-activities [db]
-  (map
-   #(crux/entity db (first %))
-   (crux/q db '{:find [id]
-                :where [[id :activity/title]]})))
 
 ;; GET /activities
 (defn list-activities [req]
