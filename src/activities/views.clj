@@ -244,8 +244,8 @@
        [:div
         [:textarea {:id   "description"
                     :name "description"
-                    :type "msg"
-                    :value description}]]]
+                    :type "msg"}
+         description]]]
       [:div
        [:label {:for "datetime"} "Date-time: "]
        [:div
