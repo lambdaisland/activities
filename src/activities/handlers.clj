@@ -55,7 +55,8 @@
 ;; POST /activity
 (defn create-activity [req]
   (let [node        (:crux req)
-        activity    (activity/req->new-activity req)
+        creator     (get-in req [:session :identity])
+        activity    (activity/new-activity (assoc (:params req) :creator creator))
         activity-id (str (:crux.db/id activity))]
     (crux/submit-tx node [[:crux.tx/put activity]])
     {:status 303
