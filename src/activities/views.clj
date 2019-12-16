@@ -8,31 +8,31 @@
             [activities.activity :as activity]
             [clojure.string]))
 
-(defn navbar [req username]
+(defn navbar [router username]
   [:nav.navbar
    [:h1.navbar-title "Activities"]
    (when username
      [:span "Logged in as " username])
    [:ul.navbar-menu
     [:li
-     [:a {:href (path req :activities.system/activities)} "Activities List"]]
+     [:a {:href (path router :activities.system/activities)} "Activities List"]]
     [:li
-     [:a {:href (path req :activities.system/new-activity)} "New Activity"]]
+     [:a {:href (path router :activities.system/new-activity)} "New Activity"]]
     [:li
-     [:a {:href (path req :activities.system/login-form)} "Login"]]
+     [:a {:href (path router :activities.system/login-form)} "Login"]]
     [:li
-     [:a {:href (path req :activities.system/register)} "Signup"]]]])
+     [:a {:href (path router :activities.system/register)} "Signup"]]]])
 
 (defn layout
   "Mounts a page template given a title and a hiccup body."
-  [req title username main]
+  [{:keys [:reitit.core/router]} title username main]
   [:html
    [:head
     [:title title]
     [:meta {:name "viewport" :content "width=device-width"}]
     [:link {:rel "stylesheet" :href "/styles.css"}]]
    [:body
-    (navbar req username)
+    (navbar router username)
     main]])
 
 (defn register [& [name email msg]]
@@ -117,9 +117,9 @@
 ;;    [:header [:h1 "List of activities"]]
 ;;    [:div activities]])
 
-(defn activity-form [req]
+(defn activity-form [{:keys [:reitit.core/router]}]
   [:div
-   [:form {:method "POST" :action (path req :activities.system/activities)}
+   [:form {:method "POST" :action (path router :activities.system/activities)}
     [:header
      [:h2 "New Activity Proposal"]]
     [:div
@@ -271,7 +271,7 @@
        [:div
         [:input {:type "submit"}]]]]]))
 
-(defn- activity-card [activity req]
+(defn- activity-card [activity {:keys [:reitit.core/router]}]
   (let [title       (:activity/title activity)
         description (:activity/description activity)
         inst        (:activity/date-time activity)
@@ -280,7 +280,7 @@
         capacity    (:activity/capacity activity)
         user-count  (count (:activity/participants activity))
         activity-id (str (:crux.db/id activity))
-        path        (path req :activities.system/activity {:id activity-id})]
+        path        (path router :activities.system/activity {:id activity-id})]
     [:article.card
      [:div.card-main
       [:header.card-header

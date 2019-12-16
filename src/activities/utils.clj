@@ -2,9 +2,8 @@
   (:require [reitit.core]
             [java-time :as time]))
 
-(defn path [req route & [params]]
-  (let [router (:reitit.core/router req)]
-    (:path (reitit.core/match-by-name router route params))))
+(defn path [router route & [params]]
+  (:path (reitit.core/match-by-name router route params)))
 
 (defn datetime->inst [datetime-local]
   (-> (time/formatter "yyyy-MM-dd'T'HH:mm")

@@ -24,9 +24,9 @@
    :body (with-out-str (clojure.pprint/pprint req))})
 
 ;; GET /
-(defn redirect-to-activities [req]
+(defn redirect-to-activities [{:keys [reitit.core/router]}]
   {:status 301
-   :headers {"Location" (path req :activities.system/activities)}})
+   :headers {"Location" (path router :activities.system/activities)}})
 
 (defn response
   "Returns a ring response with an HTML body. Supports changing the status code,
@@ -56,7 +56,7 @@
     (if (crux/entity db user-uuid)
       (response req {:title "New Activity"} (views/activity-form req))
       {:status 302
-       :headers {"Location" (path req :activities.system/login-form)}})))
+       :headers {"Location" (path (:reitit.core/router req) :activities.system/login-form)}})))
 
 ;; POST /activity
 (defn create-activity
@@ -102,7 +102,7 @@
         updated-activity  (merge current-activity modified-keys-map)]
     (submit-tx node [[:crux.tx/put updated-activity]])
     {:status  301
-     :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
+     :headers {"Location" (path (:reitit.core/router req) :activities.system/activity {:id activity-id})}}))
 
 ;; GET /activity/:id/edit
 (defn edit-activity
@@ -201,7 +201,7 @@
                           (assoc activity :activity/participants))]
     (submit-tx node [[:crux.tx/put new-activity]])
     {:status  303
-     :headers {"Location" (path req
+     :headers {"Location" (path (:reitit.core/router req)
                                 :activities.system/activity
                                 {:id activity-id})}}))
 
@@ -219,7 +219,7 @@
                           (assoc activity :activity/participants))]
     (submit-tx node [[:crux.tx/put new-activity]])
     {:status  303
-     :headers {"Location" (path req
+     :headers {"Location" (path (:reitit.core/router req)
                                 :activities.system/activity
                                 {:id activity-id})}}))
 
