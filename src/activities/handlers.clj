@@ -9,7 +9,8 @@
             [activities.render :refer [flash-message]]
             [activities.views :as views]
             [buddy.hashers]
-            [activities.utils :refer [path] :as utils])
+            [activities.utils :refer [path] :as utils]
+            [clojure.spec.alpha :as s])
   (:import [java.util UUID]))
 
 (defn submit-tx [crux tx-ops]
@@ -58,14 +59,19 @@
        :headers {"Location" (path req :activities.system/login-form)}})))
 
 ;; POST /activity
-(defn create-activity [req]
-  (let [node        (:crux req)
-        creator     (get-in req [:session :identity])
-        activity    (activity/new-activity (assoc (:params req) :creator creator))
-        activity-id (str (:crux.db/id activity))]
-    (submit-tx node [[:crux.tx/put activity]])
-    {:status 303
-     :headers {"Location" (path req :activities.system/activity {:id activity-id})}}))
+(defn create-activity
+  [{:keys [crux params session] :as req}]
+  (let [new-uuid   (UUID/randomUUID)
+        creator    (:identity session)
+        attributes (assoc params :uuid new-uuid :creator creator)
+        activity   (activity/new-activity attributes)
+        router     (:reitit.core/router req)
+        path       (path router :activities.system/activity {:id new-uuid})]
+    (if (s/valid? :activities/activity activity)
+      (do (submit-tx crux [[:crux.tx/put activity]])
+          {:status  303
+           :headers {"Location" path}})
+      (s/explain :activities/activity activity)))) ;should it throw?
 
 ;; GET /activity/:id
 (defn get-activity [req]
