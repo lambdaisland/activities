@@ -74,9 +74,13 @@
       (s/explain :activities/activity activity)))) ;should it throw?
 
 ;; GET /activity/:id
-(defn get-activity [req]
-  (response req (views/activity-page req)))
-
+(defn get-activity
+  [{:keys [crux path-params session reitit.core/router] :as req}]
+  (let [db          (crux/db crux)
+        activity-id (:id path-params)
+        activity    (crux/entity db activity-id)
+        user-uuid   (:identity session)]
+    (response req (views/activity-page activity user-uuid router))))
 
 ;; GET /activities
 (defn list-activities [req]
@@ -86,9 +90,9 @@
 ;; POST /activity/:id
 (defn update-activity [req]
   (let [node              (:crux req)
-        current-activity  (activity/req->activity req)
-        activity-uuid     (:crux.db/id current-activity)
-        activity-id       (str activity-uuid)
+        db                (crux/db node)
+        activity-id       (get-in req [:path-params :id])
+        current-activity  (crux/entity db activity-id)
         new-title         (get-in req [:params :title])
         new-description   (get-in req [:params :description])
         new-datetime      (utils/datetime->inst (get-in req [:params :datetime]))
@@ -193,8 +197,9 @@
   activity and redirects back to the activity page."
   [req]
   (let [node         (:crux req)
-        activity     (activity/req->activity req)
-        activity-id  (get activity :crux.db/id)
+        db           (crux/db node)
+        activity-id  (get-in req [:path-params :id])
+        activity     (crux/entity db activity-id)
         participants (get activity :activity/participants)
         user-uuid    (user/req->uuid req)
         new-activity (->> (conj participants user-uuid)
@@ -211,7 +216,9 @@
   the activity and redirects back to the activity page."
   [req]
   (let [node         (:crux req)
-        activity     (activity/req->activity req)
+        db           (crux/db node)
+        activity-id  (get-in req [:path-params :id])
+        activity     (crux/entity db activity-id)
         activity-id  (get activity :crux.db/id)
         participants (get activity :activity/participants)
         user-uuid    (user/req->uuid req)
