@@ -17,24 +17,6 @@
   (s/keys :req [:crux.db/id ::title ::date-time ::creator ::duration ::capacity]
           :opts [::description ::participants]))
 
-;; TODO fix namespaces?
-(defn req->new-activity
-  "Takes a request with form input for a new activity and returns a properly
-  namespaced activity map."
-  [{{:keys [title description datetime duration capacity]} :params
-    {:keys [identity]} :session}]
-  (let [new-uuid (UUID/randomUUID)
-        inst     (utils/datetime->inst datetime)
-        duration (Long/parseLong duration)
-        capacity (Long/parseLong capacity)]
-    {:crux.db/id            new-uuid
-     :activity/creator      identity
-     :activity/title        title
-     :activity/description  description
-     :activity/date-time    inst
-     :activity/duration     duration
-     :activity/capacity     capacity
-     :activity/participants #{}}))
 
 (defn req->activity
   "Takes a request containing an activity id in the path and returns the
@@ -60,19 +42,17 @@
 
 
 (defn new-activity
-  "Takes a map of activity attributes and returns a properly namespaced activity
-  map with a db/id and some defaults filled in."
-  [{:keys [title description datetime duration capacity creator]}]
-  (let [new-uuid (UUID/randomUUID)
-        inst     (utils/datetime->inst datetime)
+  "Takes a map of activity attributes and returns a properly namespaced and
+  conformed activity map with some defaults filled in."
+  [{:keys [uuid creator title description date-time duration capacity]}]
+  (let [inst     (utils/datetime->inst date-time)
         duration (Long/parseLong duration)
         capacity (Long/parseLong capacity)]
-    {:crux.db/id            new-uuid
-     :activity/creator      creator
-     :activity/title        title
-     :activity/description  description
-     :activity/date-time    inst
-     :activity/duration     duration
-     :activity/capacity     capacity
-     :activity/participants #{}}))
-
+    (s/conform :activities/activity {:crux.db/id    uuid
+                                     ::creator      creator
+                                     ::title        title
+                                     ::description  description
+                                     ::date-time    inst
+                                     ::duration     duration
+                                     ::capacity     capacity
+                                     ::participants #{}})))
