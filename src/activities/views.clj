@@ -3,9 +3,7 @@
             [activities.flexmark :as flexmark]
             [java-time :as time]
             [activities.utils :refer [path] :as utils]
-            [activities.user :as user]
-            [crux.api :as crux]
-            [activities.activity :as activity]
+            [activities.activity :as a]
             [clojure.string]))
 
 (defn navbar [router username]
@@ -152,24 +150,21 @@
      [:div
       [:input {:type "submit" :value "Submit Activity"}]]]]])
 
+;; TODO instead of passing the user-uuid, pass the role and check that
 (defn activity-page
-  [req]
-  (let [activity     (activity/req->activity req)
-        activity-id  (str (get activity :crux.db/id))
-        title        (get activity :activity/title)
-        description  (get activity :activity/description)
-        date-time    (time/local-date-time (get activity :activity/date-time) (time/zone-id "UTC"))
-        date         (time/format (time/local-date date-time))
-        time         (time/format (time/local-time date-time))
-        duration     (get activity :activity/duration)
-        capacity     (get activity :activity/capacity)
-        participants (get activity :activity/participants)
-        creator      (get activity :activity/creator)
-        user-uuid    (user/req->uuid req)]
+  "Takes an activity map, a user-uuid and a router, destructures the activity
+  namespace, modifies the format of some values to fit the purpose of the view
+  and returns a form with button actions that correspond to the user role."
+  [{:keys [:crux.db/id ::a/title ::a/description ::a/date-time ::a/duration
+           ::a/capacity ::a/participants ::a/creator]} user-uuid router]
+  (let [description (-> (flexmark/md->html description) hiccup/raw)
+        date-time   (utils/inst->zoned-local-date-time date-time)
+        date        (-> date-time time/local-date time/format)
+        time        (-> date-time time/local-time time/format)
+        make-path   #(path router % {:id id})]
     [:div
      [:h1 title]
-     [:div
-      (hiccup/raw (flexmark/md->html description))]
+     [:div description]
      [:div
       [:p (str "On: " date)]
       [:p (str "At: " time)]
@@ -179,28 +174,21 @@
       (if (= creator user-uuid)
         [:div
          [:form {:method "POST"
-                 :action (path req
-                               :activities.system/delete-activity
-                               {:id activity-id})}
+                 :action (make-path :activities.system/delete-activity)}
           [:input {:type "hidden" :name "_method" :value "delete"}]
           [:input {:type "submit" :value "Delete"}]]
          [:form {:method "GET"
-                 :action (path req
-                               :activities.system/edit-activity
-                               {:id activity-id})}
+                 :action (make-path :activities.system/edit-activity)}
           [:input {:type "submit" :value "Edit"}]]]
-        (if (contains? participants user-uuid)
-          [:form {:method "POST"
-                  :action (path req
-                                :activities.system/join-activity
-                                {:id activity-id})}
-           [:input {:type "hidden" :name "_method" :value "delete"}]
-           [:input {:type "submit" :value "Leave"}]]
-          [:form {:method "POST"
-                  :action (path req
-                                :activities.system/join-activity
-                                {:id activity-id})}
-           [:input {:type "submit" :value "Join"}]]))]]))
+        (let [join-path (make-path :activities.system/join-activity)]
+          (if (contains? participants user-uuid)
+            [:form {:method "POST"
+                    :action join-path}
+             [:input {:type "hidden" :name "_method" :value "delete"}]
+             [:input {:type "submit" :value "Leave"}]]
+            [:form {:method "POST"
+                    :action join-path}
+             [:input {:type "submit" :value "Join"}]])))]]))
 
 
 ;; (defn user-page [req]
@@ -215,23 +203,19 @@
 ;;    [:ul
 ;;     (map (fn [a-uuid]))]])
 
+;; TODO authorization
 (defn edit-activity-form
-  [req]
-  (let [activity    (activity/req->activity req)
-        activity-id (:crux.db/id activity)
-        title       (:activity/title activity)
-        description (:activity/description activity)
-        inst        (:activity/date-time activity)
-        datetime    (-> inst
-                        (time/local-date-time (time/zone-id "UTC"))
-                        (time/truncate-to :minutes)
-                        (time/format))
-        duration    (:activity/duration activity)
-        capacity    (:activity/capacity activity)]
+  [{:keys [:crux.db/id ::a/title ::a/description ::a/date-time ::a/duration
+           ::a/capacity]} _ router]
+  (let [date-time (-> date-time
+                      utils/inst->zoned-local-date-time
+                      (time/truncate-to :minutes)
+                      time/format)
+        post-path (path router :activities.system/activity {:id id})]
     [:div
      [:form
       {:method "POST"
-       :action (path req :activities.system/activity {:id activity-id})}
+       :action post-path}
       [:div
        [:label {:for "title"} "Title: "]
        [:div
@@ -252,7 +236,7 @@
         [:input {:id    "datetime"
                  :type  "datetime-local"
                  :name  "datetime"
-                 :value datetime}]]]
+                 :value date-time}]]]
       [:div
        [:label {:for "duration"} "Duration: "]
        [:div
@@ -271,15 +255,13 @@
        [:div
         [:input {:type "submit"}]]]]]))
 
-(defn- activity-card [activity {:keys [:reitit.core/router]}]
-  (let [title       (:activity/title activity)
-        description (:activity/description activity)
-        inst        (:activity/date-time activity)
-        date-time   (time/local-date-time inst (time/zone-id "UTC"))
+(defn- activity-card
+  [{:keys [:crux.db/id ::a/title ::a/description ::a/date-time ::a/capacity
+           ::a/participants]} router]
+  (let [date-time   (time/local-date-time date-time (time/zone-id "UTC"))
         time        (time/format (time/local-time date-time))
-        capacity    (:activity/capacity activity)
-        user-count  (count (:activity/participants activity))
-        activity-id (str (:crux.db/id activity))
+        user-count  (count participants)
+        activity-id (str id)
         path        (path router :activities.system/activity {:id activity-id})]
     [:article.card
      [:div.card-main
@@ -295,7 +277,6 @@
       [:a.card--button-link {:href path} "More"]]]))
 
 (defn activities
-  [req]
-  (let [activities (activity/req->activities req)]
-    [:main.activities
-     (map #(activity-card % req) activities)]))
+  [activities router]
+  [:main.activities
+   (map #(activity-card % router) activities)])
