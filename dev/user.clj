@@ -1,5 +1,7 @@
 (ns user)
 
+(require 'hashp.core)
+
 (defmacro jit
   "Just in time loading of dependencies."
   [sym]
