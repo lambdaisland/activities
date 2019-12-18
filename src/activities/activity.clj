@@ -21,7 +21,7 @@
   "Takes a map of activity attributes and returns a properly namespaced and
   conformed activity map with some defaults filled in."
   [{:keys [uuid creator title description datetime duration capacity]}]
-  (let [inst     (utils/datetime->inst datetime) ;There is a NullPointerException coming from this line
+  (let [inst     (utils/datetime->inst datetime)
         duration (Long/parseLong duration)
         capacity (Long/parseLong capacity)]
     (s/conform :activities/activity {:crux.db/id    uuid

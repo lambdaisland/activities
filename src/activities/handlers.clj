@@ -101,8 +101,6 @@
     {:status  301
      :headers {"Location" (path router :activities.system/activity {:id activity-id})}}))
 
-;;         _ (prn [:new-activity new-activity])
-
 ;; GET /activity/:id/edit
 (defn edit-activity
   "Returns a page with a form to edit an existing activity."
