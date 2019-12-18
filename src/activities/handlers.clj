@@ -83,7 +83,7 @@
 ;; GET /activities
 (defn list-activities [{:keys [crux reitit.core/router] :as req}]
   (let [db         (crux/db crux)
-        activities (activity/find-activities db)
+        activities (activity/list-activities db)
         view       (views/activities activities router)]
     (response req {:title "All Activities"} view)))
 

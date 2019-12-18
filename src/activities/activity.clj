@@ -33,7 +33,7 @@
                                      ::capacity     capacity
                                      ::participants #{}})))
 
-(defn find-activities
+(defn list-activities
   "Given a database, returns the set of currently available activity maps."
   [db]
   (let [ids (crux/q db {:find  '[id]
