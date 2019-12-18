@@ -19,5 +19,4 @@
 
  :aliases
  {:dev {:extra-paths ["dev"]
-        :extra-deps {hashp {:mvn/version "0.1.0"}}
-        :main-opts ["-e" "(require,'hashp.core)"]}}}
+        :extra-deps {hashp {:mvn/version "0.1.0"}}}}}
