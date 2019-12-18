@@ -206,7 +206,7 @@
 ;; TODO authorization
 (defn edit-activity-form
   [{:keys [:crux.db/id ::a/title ::a/description ::a/date-time ::a/duration
-           ::a/capacity]} _ router]
+           ::a/capacity]} _user-uuid router]
   (let [date-time (-> date-time
                       utils/inst->zoned-local-date-time
                       (time/truncate-to :minutes)
