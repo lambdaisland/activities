@@ -69,7 +69,8 @@
       (do (submit-tx crux [[:crux.tx/put activity]])
           {:status  303
            :headers {"Location" path}})
-      (s/explain :activities/activity activity)))) ;should it throw?
+      {:status 404
+       :body (s/explain-str :activities/activity activity)})))
 
 ;; GET /activity/:id
 (defn get-activity
